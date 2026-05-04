@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوميرا — مساعد ذكي · Assistant Lumiera</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C; --gold-l: #E8C96A; --gold-d: #9A7830;
+    --dark: #0D0D0D; --dark2: #141414; --dark3: #1C1C1C; --dark4: #242424;
+    --white: #F5F0E8; --muted: #888;
+    --rose: #E8748A; --teal: #4ECDC4;
+    --client-color: #4ECDC4;
+    --owner-color: #C9A84C;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    background: var(--dark2);
+    border-bottom: 1px solid rgba(201,168,76,0.18);
+    flex-shrink: 0;
+    gap: 12px;
+  }
+
+  .logo-area { display:flex; align-items:center; gap:12px; }
+  .logo-dot {
+    width: 38px; height: 38px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-l));
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; font-weight:900; color:var(--dark);
+    font-family:'Sora',sans-serif; flex-shrink:0;
+  }
+  .logo-text { font-size:18px; font-weight:900; }
+  .logo-text .ar { color:var(--gold); }
+  .logo-text .sep { color:var(--rose); margin:0 4px; }
+  .logo-text .fr { color:var(--white); font-family:'Sora',sans-serif; font-size:15px; font-weight:600; }
+  .logo-sub { font-size:11px; color:var(--muted); margin-top:1px; font-family:'Sora',sans-serif; }
+
+  /* MODE SWITCHER */
+  .mode-switcher {
+    display: flex; gap:6px;
+    background: var(--dark3); border:1px solid rgba(255,255,255,0.08);
+    border-radius: 50px; padding: 5px;
+  }
+  .mode-btn {
+    padding: 7px 18px; border-radius:50px; border:none; cursor:pointer;
+    font-family:'Cairo',sans-serif; font-size:13px; font-weight:600;
+    transition: all .25s; background:transparent; color:var(--muted);
+  }
+  .mode-btn.active-client { background:var(--client-color); color:var(--dark); }
+  .mode-btn.active-owner  { background:linear-gradient(135deg,var(--gold),var(--gold-l)); color:var(--dark); }
+
+  /* STATUS */
+  .status-area { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); font-family:'Sora',sans-serif; }
+  .status-dot { width:8px; height:8px; border-radius:50%; background:#27C93F; animation:pulse 2s infinite; }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* ── BODY ── */
+  .chat-body {
+    display: flex; flex:1; overflow:hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 260px; flex-shrink:0;
+    background: var(--dark2);
+    border-left: 1px solid rgba(255,255,255,0.06);
+    display: flex; flex-direction:column;
+    overflow-y: auto;
+    padding: 18px 14px;
+    gap: 8px;
+  }
+
+  .sidebar-title {
+    font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+    color:var(--muted); font-family:'Sora',sans-serif; margin-bottom:4px; padding:0 6px;
+  }
+
+  .quick-btn {
+    display:flex; align-items:center; gap:10px;
+    padding: 10px 14px; border-radius:12px;
+    background: var(--dark3); border:1px solid rgba(255,255,255,0.05);
+    cursor:pointer; transition:all .2s; text-align:right;
+    font-family:'Cairo',sans-serif;
+  }
+  .quick-btn:hover { border-color:rgba(201,168,76,0.3); background:var(--dark4); }
+  .quick-btn .icon { font-size:18px; flex-shrink:0; }
+  .quick-btn .ar { font-size:13px; font-weight:600; display:block; color:var(--white); }
+  .quick-btn .fr { font-size:10px; color:var(--muted); font-family:'Sora',sans-serif; display:block; margin-top:1px; }
+
+  .sidebar-sep { height:1px; background:rgba(255,255,255,0.06); margin: 8px 0; }
+
+  /* ── CHAT AREA ── */
+  .chat-main {
+    flex:1; display:flex; flex-direction:column; overflow:hidden;
+  }
+
+  .messages {
+    flex:1; overflow-y:auto; padding:24px 28px;
+    display:flex; flex-direction:column; gap:18px;
+    scroll-behavior: smooth;
+  }
+  .messages::-webkit-scrollbar { width:5px; }
+  .messages::-webkit-scrollbar-track { background:transparent; }
+  .messages::-webkit-scrollbar-thumb { background:var(--dark4); border-radius:3px; }
+
+  /* WELCOME */
+  .welcome-card {
+    background: linear-gradient(135deg, rgba(201,168,76,0.12) 0%, rgba(201,168,76,0.04) 100%);
+    border:1px solid rgba(201,168,76,0.25); border-radius:20px;
+    padding:28px 32px; text-align:center; max-width:560px; margin:0 auto;
+  }
+  .welcome-icon { font-size:44px; margin-bottom:14px; }
+  .welcome-title { font-size:20px; font-weight:900; margin-bottom:6px; }
+  .welcome-title .gold { color:var(--gold); }
+  .welcome-sub { font-size:13px; color:var(--muted); line-height:1.8; font-family:'Sora',sans-serif; }
+
+  /* MESSAGES */
+  .msg { display:flex; gap:12px; max-width:75%; }
+  .msg.user { align-self:flex-start; flex-direction:row-reverse; }
+  .msg.bot  { align-self:flex-end; }
+
+  .msg-avatar {
+    width:36px; height:36px; border-radius:12px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:16px;
+  }
+  .msg.user .msg-avatar { background:var(--dark4); border:1px solid rgba(255,255,255,0.1); }
+  .msg.bot  .msg-avatar {
+    background:linear-gradient(135deg, var(--gold), var(--gold-l));
+    font-weight:900; color:var(--dark); font-family:'Sora',sans-serif; font-size:13px;
+  }
+
+  .msg-bubble {
+    padding: 12px 16px; border-radius:16px; font-size:14px; line-height:1.75;
+    position:relative;
+  }
+  .msg.user .msg-bubble {
+    background: var(--dark3); border:1px solid rgba(255,255,255,0.07);
+    border-top-right-radius: 4px;
+  }
+  .msg.bot .msg-bubble {
+    background: var(--dark4); border:1px solid rgba(201,168,76,0.15);
+    border-top-left-radius: 4px;
+  }
+
+  .msg-time {
+    font-size:10px; color:var(--muted); font-family:'Sora',sans-serif;
+    margin-top:5px; text-align:center;
+  }
+  .msg.user .msg-time { text-align:right; }
+  .msg.bot  .msg-time { text-align:left; }
+
+  /* TYPING */
+  .typing-indicator {
+    display:flex; gap:5px; align-items:center; padding:14px 16px;
+  }
+  .typing-dot {
+    width:8px; height:8px; border-radius:50%; background:var(--gold);
+    animation: bounce .8s ease infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay:.15s; }
+  .typing-dot:nth-child(3) { animation-delay:.3s; }
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  /* SUGGESTIONS */
+  .suggestions {
+    display:flex; gap:8px; flex-wrap:wrap; padding:0 28px 12px;
+  }
+  .suggestion-chip {
+    padding:7px 14px; background:var(--dark3);
+    border:1px solid rgba(255,255,255,0.09); border-radius:50px;
+    font-size:12px; font-family:'Cairo',sans-serif; cursor:pointer;
+    transition:all .2s; color:var(--muted); white-space:nowrap;
+  }
+  .suggestion-chip:hover { border-color:var(--gold); color:var(--gold); }
+
+  /* INPUT BAR */
+  .input-bar {
+    padding: 14px 24px 18px;
+    background: var(--dark2);
+    border-top:1px solid rgba(255,255,255,0.06);
+    flex-shrink:0;
+  }
+  .input-wrap {
+    display:flex; gap:10px; align-items:flex-end;
+    background: var(--dark3); border:1px solid rgba(201,168,76,0.25);
+    border-radius:16px; padding:10px 14px;
+    transition: border-color .2s;
+  }
+  .input-wrap:focus-within { border-color:rgba(201,168,76,0.6); }
+
+  #user-input {
+    flex:1; background:transparent; border:none; outline:none;
+    color:var(--white); font-family:'Cairo',sans-serif; font-size:14px;
+    resize:none; max-height:120px; min-height:24px;
+    line-height:1.6;
+  }
+  #user-input::placeholder { color:var(--muted); }
+
+  .send-btn {
+    width:40px; height:40px; border-radius:12px; border:none;
+    background:linear-gradient(135deg, var(--gold), var(--gold-l));
+    color:var(--dark); cursor:pointer; display:flex; align-items:center;
+    justify-content:center; flex-shrink:0; transition:all .2s;
+    font-size:18px;
+  }
+  .send-btn:hover { transform:scale(1.05); box-shadow:0 4px 16px rgba(201,168,76,0.4); }
+  .send-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+  .input-footer {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:8px; font-size:11px; color:var(--muted); font-family:'Sora',sans-serif;
+    padding:0 4px;
+  }
+
+  /* HIGHLIGHT tags in bot messages */
+  .bot-msg b { color:var(--gold); font-weight:700; }
+  .bot-msg ul { margin: 8px 0 8px 16px; }
+  .bot-msg ul li { margin-bottom:4px; }
+  .bot-msg .tag {
+    display:inline-block; background:rgba(201,168,76,0.15);
+    border:1px solid rgba(201,168,76,0.3); color:var(--gold);
+    border-radius:6px; padding:2px 8px; font-size:12px; margin:2px;
+  }
+
+  /* Mode colors */
+  body.mode-client .mode-btn:not(.active-owner) { color:var(--muted); }
+  body.mode-owner  .mode-btn:not(.active-client) { color:var(--muted); }
+</style>
+<script src="/api.js"></script>
+</head>
+<body class="mode-client">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo-area">
+    <div class="logo-dot">L</div>
+    <div>
+      <div class="logo-text">
+        <span class="ar">لوميرا</span><span class="sep">·</span><span class="fr">Lumiera</span>
+      </div>
+      <div class="logo-sub">المساعد الذكي · Assistant IA</div>
+    </div>
+  </div>
+
+  <div class="mode-switcher">
+    <button class="mode-btn active-client" id="btn-client" onclick="setMode('client')">
+      🧑 زبون · Client
+    </button>
+    <button class="mode-btn" id="btn-owner" onclick="setMode('owner')">
+      👔 صاحب صالون · Propriétaire
+    </button>
+  </div>
+
+  <div class="status-area">
+    <div class="status-dot"></div>
+    <span>Claude AI — متصل · En ligne</span>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="chat-body">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-title" id="sidebar-title">الزبون · Client</div>
+
+    <div id="quick-client">
+      <div class="quick-btn" onclick="sendQuick('كيفاش نحجز موعد في الصالون؟')">
+        <span class="icon">📅</span>
+        <div><span class="ar">حجز موعد</span><span class="fr">Prendre un RDV</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('شنوا الخدمات المتاحة وأسعارها؟')">
+        <span class="icon">💇</span>
+        <div><span class="ar">الخدمات والأسعار</span><span class="fr">Services & Tarifs</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('كيفاش نلغي أو نبدل موعد؟')">
+        <span class="icon">🔄</span>
+        <div><span class="ar">إلغاء / تبديل موعد</span><span class="fr">Annuler / Modifier RDV</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('شنوا مواعيد عمل الصالون؟')">
+        <span class="icon">🕐</span>
+        <div><span class="ar">مواعيد العمل</span><span class="fr">Horaires d'ouverture</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('كيفاش نشوف نقاط الولاء متاعي؟')">
+        <span class="icon">⭐</span>
+        <div><span class="ar">نقاط الولاء</span><span class="fr">Points fidélité</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('عندي سؤال عن الدفع')">
+        <span class="icon">💳</span>
+        <div><span class="ar">الدفع والفواتير</span><span class="fr">Paiement & Factures</span></div>
+      </div>
+    </div>
+
+    <div id="quick-owner" style="display:none">
+      <div class="quick-btn" onclick="sendQuick('كيفاش نضيف عامل جديد في المنصة؟')">
+        <span class="icon">👥</span>
+        <div><span class="ar">إضافة عامل</span><span class="fr">Ajouter employé</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('كيفاش نشوف تقرير إيرادات الشهر؟')">
+        <span class="icon">📊</span>
+        <div><span class="ar">تقرير الإيرادات</span><span class="fr">Rapport CA</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('كيفاش نعمل عرض خاص للزبائن؟')">
+        <span class="icon">🎯</span>
+        <div><span class="ar">عرض تسويقي</span><span class="fr">Campagne marketing</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('المخزون متاعي وصل للحد الأدنى، شنوا نعمل؟')">
+        <span class="icon">📦</span>
+        <div><span class="ar">تنبيه المخزون</span><span class="fr">Alerte stock</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('كيفاش نحسب عمولات العمال؟')">
+        <span class="icon">💰</span>
+        <div><span class="ar">حساب العمولات</span><span class="fr">Calcul commissions</span></div>
+      </div>
+      <div class="quick-btn" onclick="sendQuick('كيفاش نصدر تقرير PDF؟')">
+        <span class="icon">📄</span>
+        <div><span class="ar">تصدير تقرير</span><span class="fr">Exporter rapport</span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-title" style="margin-top:4px">إعدادات · Paramètres</div>
+    <div class="quick-btn" onclick="clearChat()">
+      <span class="icon">🗑️</span>
+      <div><span class="ar">محادثة جديدة</span><span class="fr">Nouvelle conversation</span></div>
+    </div>
+  </div>
+
+  <!-- CHAT MAIN -->
+  <div class="chat-main">
+    <div class="messages" id="messages">
+      <div class="welcome-card" id="welcome-card">
+        <div class="welcome-icon">✨</div>
+        <div class="welcome-title">مرحباً! أنا <span class="gold">لوميرا AI</span></div>
+        <div class="welcome-sub">
+          Bonjour ! Je suis votre assistant intelligent Lumiera.<br>
+          أنا هنا باش نساعدك — سواء كنت زبون أو صاحب صالون 🇹🇳<br>
+          <strong style="color:var(--gold)">اختر وضعك من فوق وابدأ!</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUGGESTIONS -->
+    <div class="suggestions" id="suggestions">
+      <div class="suggestion-chip" onclick="sendQuick('مرحبا، شنوا تقدر تعملي؟')">مرحبا 👋</div>
+      <div class="suggestion-chip" onclick="sendQuick('شنوا خدمات الصالون؟')">الخدمات المتاحة</div>
+      <div class="suggestion-chip" onclick="sendQuick('كيفاش تعمل المنصة؟')">Comment ça marche?</div>
+      <div class="suggestion-chip" onclick="sendQuick('ما هي أسعار الاشتراك؟')">Tarifs abonnement</div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-bar">
+      <div class="input-wrap">
+        <textarea id="user-input" placeholder="اكتب سؤالك هنا... / Écrivez votre message..." rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="input-footer">
+        <span id="mode-label">وضع: الزبون · Mode: Client</span>
+        <span>Claude AI — لوميرا · Lumiera</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentMode = 'client';
+  let isLoading   = false;
+  const history   = [];   // { role, content }
+
+  // ── SYSTEM PROMPTS ─────────────────────────────────────────────────────
+  const SYSTEM = {
+    client: `Tu es l'assistant IA de Lumiera, une plateforme SaaS de gestion de salons en Tunisie.
+Tu aides les CLIENTS (زبائن) qui veulent :
+- Prendre, annuler ou modifier un rendez-vous
+- Connaître les services disponibles et leurs prix
+- Consulter leurs points de fidélité
+- Poser des questions sur les horaires et le paiement
+
+Réponds TOUJOURS en arabe tunisien (دارجة) EN PREMIER (2-3 phrases max), puis ajoute une traduction courte en français en italique.
+Sois chaleureux, concis et utile. Si tu ne sais pas quelque chose de précis sur le salon, dis-le poliment et suggère de contacter directement le salon.
+Utilise des emojis avec modération pour rendre la conversation agréable.
+Ne dépasse pas 150 mots par réponse.`,
+
+    owner: `Tu es l'assistant IA de Lumiera, une plateforme SaaS de gestion de salons en Tunisie.
+Tu aides les PROPRIÉTAIRES DE SALONS (أصحاب الصالونات) qui veulent :
+- Gérer leurs employés, plannings et commissions
+- Comprendre leurs rapports et statistiques
+- Utiliser les outils marketing (SMS, fidélité)
+- Gérer les stocks et les paiements
+- Configurer leur compte Lumiera
+
+Réponds TOUJOURS en arabe tunisien (دارجة) EN PREMIER, puis une courte traduction en français.
+Sois professionnel, précis et pratique. Donne des étapes concrètes quand c'est possible.
+Tu connais bien la plateforme Lumiera : dashboard, caisse POS, gestion employés, stocks, rapports, campagnes SMS.
+Utilise des listes à puces pour les étapes. Ne dépasse pas 200 mots.`
+  };
+
+  // ── MODE SWITCH ────────────────────────────────────────────────────────
+  function setMode(mode) {
+    currentMode = mode;
+    document.body.className = `mode-${mode}`;
+    document.getElementById('btn-client').className = 'mode-btn' + (mode==='client' ? ' active-client' : '');
+    document.getElementById('btn-owner').className  = 'mode-btn' + (mode==='owner'  ? ' active-owner'  : '');
+    document.getElementById('quick-client').style.display = mode==='client' ? 'flex' : 'none';
+    document.getElementById('quick-owner').style.display  = mode==='owner'  ? 'flex' : 'none';
+    document.getElementById('quick-client').style.flexDirection = 'column';
+    document.getElementById('quick-client').style.gap = '8px';
+    document.getElementById('quick-owner').style.flexDirection = 'column';
+    document.getElementById('quick-owner').style.gap = '8px';
+    document.getElementById('sidebar-title').textContent = mode==='client'
+      ? 'الزبون · Client' : 'صاحب الصالون · Propriétaire';
+    document.getElementById('mode-label').textContent = mode==='client'
+      ? 'وضع: الزبون · Mode: Client' : 'وضع: صاحب الصالون · Mode: Propriétaire';
+    clearChat(true);
+  }
+
+  // ── CLEAR CHAT ─────────────────────────────────────────────────────────
+  function clearChat(keepWelcome = false) {
+    history.length = 0;
+    const msgs = document.getElementById('messages');
+    msgs.innerHTML = `
+      <div class="welcome-card" id="welcome-card">
+        <div class="welcome-icon">${currentMode==='client' ? '🧑' : '👔'}</div>
+        <div class="welcome-title">مرحباً! أنا <span class="gold">لوميرا AI</span></div>
+        <div class="welcome-sub">
+          ${currentMode==='client'
+            ? 'أنا هنا باش نساعدك تحجز مواعيدك وتعرف كل شيء على الصالون! 🌟<br><em style="font-family:Sora,sans-serif;font-size:12px;color:#888">Je suis là pour vous aider à gérer vos rendez-vous et découvrir nos services.</em>'
+            : 'أنا هنا باش نساعدك تدير صالونك بذكاء — عمال، إيرادات، مخزون وأكثر! 🚀<br><em style="font-family:Sora,sans-serif;font-size:12px;color:#888">Je suis là pour vous aider à gérer votre salon efficacement.</em>'
+          }
+        </div>
+      </div>`;
+  }
+
+  // ── SEND ───────────────────────────────────────────────────────────────
+  async function sendMessage() {
+    const input = document.getElementById('user-input');
+    const text  = input.value.trim();
+    if (!text || isLoading) return;
+
+    // Remove welcome card
+    const wc = document.getElementById('welcome-card');
+    if (wc) wc.remove();
+    document.getElementById('suggestions').style.display = 'none';
+
+    // Add user message
+    addMsg(text, 'user');
+    input.value = '';
+    input.style.height = 'auto';
+    history.push({ role:'user', content: text });
+
+    // Show typing
+    const typingId = showTyping();
+    isLoading = true;
+    document.getElementById('send-btn').disabled = true;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: SYSTEM[currentMode],
+          messages: history
+        })
+      });
+      const data = await response.json();
+      const reply = data.content?.[0]?.text || 'عذراً، فيه مشكلة. حاول مرة أخرى.';
+      removeTyping(typingId);
+      addMsg(reply, 'bot');
+      history.push({ role:'assistant', content: reply });
+    } catch(e) {
+      removeTyping(typingId);
+      addMsg('⚠️ مشكلة في الاتصال. تأكد من الإنترنت وحاول مرة أخرى.\n_Problème de connexion. Veuillez réessayer._', 'bot');
+    }
+
+    isLoading = false;
+    document.getElementById('send-btn').disabled = false;
+  }
+
+  function sendQuick(text) {
+    document.getElementById('user-input').value = text;
+    sendMessage();
+  }
+
+  // ── DOM HELPERS ────────────────────────────────────────────────────────
+  function addMsg(text, role) {
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
+    div.className = `msg ${role}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = role==='user' ? (currentMode==='client' ? '🧑' : '👔') : 'L';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble' + (role==='bot' ? ' bot-msg' : '');
+
+    // Simple markdown-lite: bold, italic, bullet
+    let html = text
+      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+      .replace(/_(.*?)_/g, '<em style="font-family:Sora,sans-serif;font-size:12px;color:#888">$1</em>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+      .replace(/\n/g, '<br>');
+    bubble.innerHTML = html;
+
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = new Date().toLocaleTimeString('fr-TN', {hour:'2-digit',minute:'2-digit'});
+
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex'; wrap.style.flexDirection = 'column';
+    wrap.appendChild(bubble); wrap.appendChild(time);
+
+    div.appendChild(avatar); div.appendChild(wrap);
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById('messages');
+    const id   = 'typing-' + Date.now();
+    const div  = document.createElement('div');
+    div.id = id; div.className = 'msg bot';
+    div.innerHTML = `
+      <div class="msg-avatar" style="background:linear-gradient(135deg,#C9A84C,#E8C96A);color:#0D0D0D;font-family:Sora,sans-serif;font-weight:900;font-size:13px">L</div>
+      <div class="msg-bubble" style="padding:0">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return id;
+  }
+
+  function removeTyping(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  }
+
+  // ── TEXTAREA ───────────────────────────────────────────────────────────
+  function handleKey(e) {
+    if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  // Init sidebar display
+  document.getElementById('quick-client').style.display = 'flex';
+  document.getElementById('quick-client').style.flexDirection = 'column';
+  document.getElementById('quick-client').style.gap = '8px';
+</script>
+
+<script>
+window.addEventListener('load', () => {
+  if (window.API && API.Auth.isLoggedIn()) {
+    const user = API.Auth.getUser();
+    // Inject user name in chatbot greeting
+    const welcome = document.getElementById('cb-welcome');
+    if (welcome && user) {
+      const titleEl = welcome.querySelector('div:first-child');
+      if (titleEl) titleEl.innerHTML = 'مرحبا <span style="color:var(--gold)">' + user.prenom + '</span> — لوميرا AI';
+    }
+    // Update mode based on role
+    if (user.role === 'owner' && typeof setChatMode === 'function') setChatMode('owner');
+    else if (typeof setChatMode === 'function') setChatMode('client');
+  }
+  // Back button
+  const backBtns = document.querySelectorAll('button');
+  backBtns.forEach(btn => {
+    if (btn.textContent.includes('رجوع') || btn.textContent.includes('Retour')) {
+      btn.onclick = () => window.history.back();
+    }
+  });
+});
+</script>
+</body>
+</html>

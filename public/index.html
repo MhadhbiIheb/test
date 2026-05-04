@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوميرا — Lumiera · منصة إدارة الصالونات في تونس</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Tajawal:wght@300;400;500;700;900&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C; --gold-light: #E8C96A; --gold-dark: #9A7830;
+    --dark: #0D0D0D; --dark-2: #141414; --dark-3: #1C1C1C; --dark-4: #242424;
+    --text-white: #F5F0E8; --text-muted: #888;
+    --accent-rose: #E8748A; --accent-teal: #4ECDC4;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--dark); color:var(--text-white); overflow-x:hidden; }
+  body.lang-ar { font-family:'Cairo','Tajawal',sans-serif; }
+  body.lang-fr { font-family:'Sora','Cairo',sans-serif; }
+
+  ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--dark-2)} ::-webkit-scrollbar-thumb{background:var(--gold-dark);border-radius:3px}
+
+  /* LANG VISIBILITY */
+  .ar { display:block } .fr { display:none }
+  body.lang-fr .ar { display:none } body.lang-fr .fr { display:block }
+  .ari { display:inline } .fri { display:none }
+  body.lang-fr .ari { display:none } body.lang-fr .fri { display:inline }
+
+  /* LANG TOGGLE */
+  .lang-toggle { display:flex; align-items:center; gap:4px; background:var(--dark-4); border:1px solid rgba(201,168,76,0.3); border-radius:50px; padding:4px; }
+  .lang-btn { padding:6px 14px; border-radius:50px; border:none; font-size:12px; font-weight:700; cursor:pointer; transition:all .25s; background:transparent; color:var(--text-muted); font-family:inherit; }
+  .lang-btn.active { background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--dark); }
+
+  /* NAV */
+  nav { position:fixed; top:0; width:100%; z-index:1000; padding:18px 60px; display:flex; align-items:center; justify-content:space-between; gap:20px; backdrop-filter:blur(20px); background:rgba(13,13,13,.88); border-bottom:1px solid rgba(201,168,76,.15); transition:padding .3s; }
+  .nav-logo { font-size:26px; font-weight:900; background:linear-gradient(135deg,var(--gold),var(--gold-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; flex-shrink:0; }
+  .nav-logo span { -webkit-text-fill-color:var(--accent-rose); }
+  .nav-links { display:flex; gap:30px; list-style:none; }
+  .nav-links a { color:var(--text-muted); text-decoration:none; font-size:14px; font-weight:500; transition:color .2s; position:relative; }
+  .nav-links a::after { content:''; position:absolute; bottom:-4px; width:0; height:2px; background:var(--gold); transition:width .3s; }
+  body.lang-ar .nav-links a::after { right:0; } body.lang-fr .nav-links a::after { left:0; }
+  .nav-links a:hover { color:var(--text-white); } .nav-links a:hover::after { width:100%; }
+  .nav-right { display:flex; gap:10px; align-items:center; flex-shrink:0; }
+
+  .btn-outline { padding:9px 22px; border:1px solid var(--gold); color:var(--gold); background:transparent; border-radius:50px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all .3s; }
+  .btn-outline:hover { background:var(--gold); color:var(--dark); }
+  .btn-gold { padding:9px 24px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--dark); border:none; border-radius:50px; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; transition:all .3s; box-shadow:0 4px 20px rgba(201,168,76,.3); }
+  .btn-gold:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(201,168,76,.5); }
+
+  /* HERO */
+  .hero { min-height:100vh; display:flex; align-items:center; padding:120px 60px 80px; position:relative; overflow:hidden; }
+  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 20% 50%,rgba(201,168,76,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 80% 80%,rgba(232,116,138,.05) 0%,transparent 50%); }
+  .hero-grid { position:absolute; inset:0; opacity:.03; background-image:linear-gradient(var(--gold) 1px,transparent 1px),linear-gradient(90deg,var(--gold) 1px,transparent 1px); background-size:60px 60px; }
+  .hero-content { max-width:620px; position:relative; z-index:2; animation:fadeInUp .8s ease both; }
+  .hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(201,168,76,.1); border:1px solid rgba(201,168,76,.3); padding:7px 16px; border-radius:50px; margin-bottom:26px; font-size:12px; color:var(--gold); font-weight:600; }
+  .badge-dot { width:7px; height:7px; border-radius:50%; background:var(--gold); animation:pulse 2s infinite; }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+  .hero h1 { font-size:clamp(36px,5vw,62px); font-weight:900; line-height:1.15; margin-bottom:22px; letter-spacing:-1px; }
+  .hl { background:linear-gradient(135deg,var(--gold),var(--gold-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .hero p { font-size:17px; color:var(--text-muted); line-height:1.8; margin-bottom:36px; }
+  .hero-btns { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .btn-primary { padding:15px 36px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--dark); border:none; border-radius:50px; font-family:inherit; font-size:15px; font-weight:800; cursor:pointer; transition:all .3s; box-shadow:0 8px 30px rgba(201,168,76,.4); }
+  .btn-primary:hover { transform:translateY(-3px); box-shadow:0 14px 40px rgba(201,168,76,.6); }
+  .btn-secondary { padding:15px 28px; background:rgba(255,255,255,.05); color:var(--text-white); border:1px solid rgba(255,255,255,.1); border-radius:50px; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; transition:all .3s; }
+  .btn-secondary:hover { background:rgba(255,255,255,.1); }
+  .hero-stats { display:flex; gap:44px; margin-top:56px; padding-top:36px; border-top:1px solid rgba(255,255,255,.07); }
+  .stat-num { font-size:30px; font-weight:900; background:linear-gradient(135deg,var(--gold),var(--gold-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; }
+  .stat-label { font-size:12px; color:var(--text-muted); margin-top:4px; }
+
+  /* MOCKUP */
+  .hero-visual { position:absolute; left:5%; top:50%; transform:translateY(-50%); width:460px; animation:fadeInRight 1s ease .3s both; }
+  .dashboard-mockup { background:var(--dark-3); border:1px solid rgba(201,168,76,.2); border-radius:22px; padding:18px; box-shadow:0 40px 100px rgba(0,0,0,.7),0 0 60px rgba(201,168,76,.08); overflow:hidden; }
+  .mock-header { display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,.06); }
+  .mock-dot { width:9px; height:9px; border-radius:50%; }
+  .mock-title { font-size:11px; color:var(--text-muted); margin-inline:auto; }
+  .mock-stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+  .mock-stat { background:var(--dark-4); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,.04); }
+  .mock-stat-num { font-size:20px; font-weight:800; color:var(--gold); }
+  .mock-stat-label { font-size:9px; color:var(--text-muted); margin-top:2px; }
+  .mock-chart { background:var(--dark-4); border-radius:10px; padding:14px; margin-bottom:12px; height:100px; overflow:hidden; }
+  .mock-chart-title { font-size:10px; color:var(--text-muted); margin-bottom:10px; }
+  .chart-bars { display:flex; align-items:flex-end; gap:7px; height:60px; }
+  .chart-bar { flex:1; border-radius:3px 3px 0 0; background:linear-gradient(180deg,var(--gold) 0%,var(--gold-dark) 100%); opacity:.75; animation:growBar 1s ease both; }
+  @keyframes growBar{from{height:0 !important}}
+  .mock-booking-item { display:flex; align-items:center; gap:9px; background:var(--dark-4); border-radius:9px; padding:9px 12px; margin-bottom:8px; border:1px solid rgba(255,255,255,.04); }
+  .mock-avatar { width:28px; height:28px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,var(--accent-rose),var(--gold)); }
+  .mock-booking-name { font-size:10px; font-weight:600; }
+  .mock-booking-service { font-size:9px; color:var(--text-muted); }
+  .mock-badge { padding:2px 9px; border-radius:20px; font-size:8px; font-weight:700; }
+  .badge-ok { background:rgba(78,205,196,.15); color:var(--accent-teal); }
+  .badge-wait { background:rgba(201,168,76,.15); color:var(--gold); }
+  .float-card { position:absolute; background:var(--dark-3); border:1px solid rgba(201,168,76,.25); border-radius:14px; padding:14px 18px; box-shadow:0 20px 50px rgba(0,0,0,.5); }
+  .fc1 { bottom:-16px; right:-24px; font-size:11px; } .fc2 { top:50px; left:-30px; font-size:11px; }
+  .float-val { font-size:22px; font-weight:900; color:var(--gold); }
+  .float-label { color:var(--text-muted); font-size:10px; margin-top:2px; }
+
+  /* LOGOS */
+  .logos-section { padding:44px 60px; border-top:1px solid rgba(255,255,255,.06); border-bottom:1px solid rgba(255,255,255,.06); text-align:center; }
+  .logos-label { color:var(--text-muted); font-size:12px; margin-bottom:26px; letter-spacing:2px; text-transform:uppercase; }
+  .logos-row { display:flex; align-items:center; justify-content:center; gap:52px; flex-wrap:wrap; }
+  .logo-item { font-size:14px; font-weight:700; color:rgba(255,255,255,.18); transition:color .3s; letter-spacing:1px; }
+  .logo-item:hover { color:rgba(255,255,255,.45); }
+
+  /* SECTIONS */
+  .section { padding:90px 60px; }
+  .section-tag { display:inline-flex; align-items:center; gap:8px; color:var(--gold); font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; }
+  .section-tag::before { content:''; width:22px; height:2px; background:var(--gold); }
+  .section-title { font-size:clamp(30px,4vw,48px); font-weight:900; line-height:1.2; margin-bottom:18px; }
+  .section-subtitle { color:var(--text-muted); font-size:16px; line-height:1.8; max-width:520px; }
+
+  /* FEATURES */
+  .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:56px; }
+  .feature-card { background:var(--dark-3); border:1px solid rgba(255,255,255,.06); border-radius:18px; padding:32px 28px; transition:all .4s; position:relative; overflow:hidden; }
+  .feature-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(201,168,76,.05) 0%,transparent 60%); opacity:0; transition:opacity .4s; }
+  .feature-card:hover { border-color:rgba(201,168,76,.3); transform:translateY(-5px); } .feature-card:hover::before { opacity:1; }
+  .feature-icon { width:54px; height:54px; background:rgba(201,168,76,.1); border:1px solid rgba(201,168,76,.2); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:20px; transition:all .3s; }
+  .feature-card:hover .feature-icon { background:rgba(201,168,76,.2); transform:scale(1.05); }
+  .feature-card h3 { font-size:18px; font-weight:700; margin-bottom:10px; }
+  .feature-card p { font-size:13px; color:var(--text-muted); line-height:1.8; }
+
+  /* HOW */
+  .how-section { padding:90px 60px; background:var(--dark-2); }
+  .steps-container { display:grid; grid-template-columns:repeat(4,1fr); gap:22px; margin-top:56px; position:relative; }
+  .steps-container::before { content:''; position:absolute; top:38px; right:12.5%; left:12.5%; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); z-index:0; }
+  .step-item { text-align:center; position:relative; z-index:1; }
+  .step-num { width:76px; height:76px; margin:0 auto 22px; background:var(--dark-3); border:2px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; color:var(--gold); transition:all .3s; }
+  .step-item:hover .step-num { background:var(--gold); color:var(--dark); transform:scale(1.1); box-shadow:0 0 30px rgba(201,168,76,.5); }
+  .step-item h4 { font-size:17px; font-weight:700; margin-bottom:9px; }
+  .step-item p { font-size:13px; color:var(--text-muted); line-height:1.7; }
+
+  /* PRICING */
+  .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:56px; }
+  .pricing-card { background:var(--dark-3); border:1px solid rgba(255,255,255,.08); border-radius:22px; padding:36px 32px; position:relative; transition:all .4s; }
+  .pricing-card:hover { transform:translateY(-7px); }
+  .pricing-card.popular { background:linear-gradient(160deg,rgba(201,168,76,.14) 0%,var(--dark-3) 60%); border-color:var(--gold); transform:scale(1.03); }
+  .pricing-card.popular:hover { transform:scale(1.03) translateY(-7px); }
+  .popular-badge { position:absolute; top:-13px; right:50%; transform:translateX(50%); background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--dark); padding:5px 18px; border-radius:20px; font-size:11px; font-weight:800; white-space:nowrap; }
+  .plan-name { font-size:13px; color:var(--text-muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:7px; }
+  .plan-price { font-size:46px; font-weight:900; line-height:1; margin-bottom:3px; }
+  .plan-price span { font-size:14px; font-weight:400; color:var(--text-muted); }
+  .plan-period { font-size:12px; color:var(--text-muted); margin-bottom:26px; }
+  .plan-divider { height:1px; background:rgba(255,255,255,.07); margin-bottom:24px; }
+  .plan-features { list-style:none; display:flex; flex-direction:column; gap:12px; margin-bottom:32px; }
+  .plan-features li { display:flex; align-items:center; gap:10px; font-size:13px; }
+  .plan-features li::before { content:'✓'; color:var(--gold); font-weight:800; flex-shrink:0; }
+  .plan-features li.off { color:var(--text-muted); } .plan-features li.off::before { content:'×'; color:rgba(255,255,255,.2); }
+  .plan-btn { width:100%; padding:13px; border-radius:11px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:all .3s; }
+  .plan-btn-outline { background:transparent; border:1px solid rgba(255,255,255,.15); color:var(--text-white); }
+  .plan-btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+  .plan-btn-gold { background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--dark); border:none; box-shadow:0 6px 24px rgba(201,168,76,.4); }
+  .plan-btn-gold:hover { box-shadow:0 10px 36px rgba(201,168,76,.6); transform:translateY(-2px); }
+
+  /* CTA */
+  .cta-section { padding:90px 60px; text-align:center; position:relative; overflow:hidden; }
+  .cta-section::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 70% 80% at center,rgba(201,168,76,.07) 0%,transparent 70%); }
+  .cta-content { position:relative; z-index:1; max-width:660px; margin:0 auto; }
+  .cta-section h2 { font-size:clamp(32px,4vw,52px); font-weight:900; margin-bottom:18px; }
+  .cta-section p { font-size:17px; color:var(--text-muted); margin-bottom:36px; line-height:1.8; }
+  .cta-input-group { display:flex; gap:10px; max-width:460px; margin:0 auto; background:var(--dark-3); border:1px solid rgba(201,168,76,.3); border-radius:50px; padding:7px 7px 7px 22px; }
+  body.lang-fr .cta-input-group { direction:ltr; }
+  .cta-input { flex:1; background:transparent; border:none; outline:none; color:var(--text-white); font-family:inherit; font-size:14px; }
+  .cta-input::placeholder { color:var(--text-muted); }
+
+  /* FOOTER */
+  footer { padding:56px 60px 28px; border-top:1px solid rgba(255,255,255,.07); }
+  .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:44px; margin-bottom:44px; }
+  .footer-logo { font-size:22px; font-weight:900; color:var(--gold); margin-bottom:14px; }
+  .footer-desc { font-size:13px; color:var(--text-muted); line-height:1.8; max-width:280px; margin-bottom:22px; }
+  .social-links { display:flex; gap:10px; }
+  .social-btn { width:38px; height:38px; background:var(--dark-3); border:1px solid rgba(255,255,255,.08); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; transition:all .3s; text-decoration:none; color:var(--text-white); }
+  .social-btn:hover { border-color:var(--gold); background:rgba(201,168,76,.1); }
+  .footer-col h5 { font-size:14px; font-weight:700; margin-bottom:18px; }
+  .footer-col ul { list-style:none; display:flex; flex-direction:column; gap:11px; }
+  .footer-col ul li a { color:var(--text-muted); text-decoration:none; font-size:13px; transition:color .2s; }
+  .footer-col ul li a:hover { color:var(--text-white); }
+  .footer-bottom { padding-top:22px; border-top:1px solid rgba(255,255,255,.06); display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--text-muted); }
+
+  /* ANIM */
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeInRight{from{opacity:0;transform:translateY(-50%) translateX(36px)}to{opacity:1;transform:translateY(-50%) translateX(0)}}
+  .aos{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+  .aos.visible{opacity:1;transform:translateY(0)}
+
+  /* MOBILE */
+  @media(max-width:900px){
+    nav{padding:14px 22px} .nav-links{display:none}
+    .hero,.section,.how-section,.cta-section{padding:90px 22px 60px}
+    .hero-visual{display:none}
+    .features-grid,.pricing-grid{grid-template-columns:1fr}
+    .steps-container{grid-template-columns:repeat(2,1fr)} .steps-container::before{display:none}
+    .pricing-card.popular{transform:none}
+    .footer-grid{grid-template-columns:1fr 1fr}
+    .logos-section{padding:36px 22px} footer{padding:36px 22px 20px}
+  }
+</style>
+<script src="/api.js"></script>
+</head>
+<body class="lang-ar">
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="nav-logo">لوميرا<span>·</span>Lumiera</div>
+  <ul class="nav-links">
+    <li><a href="#features"><span class="ari">المميزات</span><span class="fri">Fonctionnalités</span></a></li>
+    <li><a href="#how"><span class="ari">كيف يعمل</span><span class="fri">Comment ça marche</span></a></li>
+    <li><a href="#pricing"><span class="ari">الأسعار</span><span class="fri">Tarifs</span></a></li>
+    <li><a href="#contact"><span class="ari">تواصل معانا</span><span class="fri">Contact</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ar" onclick="setLang('ar')">عربي</button>
+      <button class="lang-btn" id="btn-fr" onclick="setLang('fr')">FR</button>
+    </div>
+    <button class="btn-outline"><span class="ari">تسجيل الدخول</span><span class="fri">Connexion</span></button>
+    <button class="btn-gold"><span class="ari">ابدأ مجاناً</span><span class="fri">Essai gratuit</span></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div><div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      <span class="ari">المنصة الأولى لإدارة الصالونات في تونس 🇹🇳</span>
+      <span class="fri">La plateforme N°1 de gestion de salons en Tunisie 🇹🇳</span>
+    </div>
+    <h1 class="ar">دير صالونك<br>بذكاء وسهولة<br><span class="hl">من أي بلاصة</span></h1>
+    <h1 class="fr">Gérez votre salon<br>avec intelligence<br><span class="hl">de n'importe où</span></h1>
+    <p class="ar">منصة متكاملة لإدارة المواعيد، نقطة البيع، المخزون، والتقارير — كل شيء في لوحة واحدة، بالدينار التونسي.</p>
+    <p class="fr">Une plateforme complète pour gérer les rendez-vous, la caisse, les stocks et les rapports — tout en un, en dinars tunisiens.</p>
+    <div class="hero-btns">
+      <button class="btn-primary"><span class="ari">🚀 ابدأ تجربتك المجانية</span><span class="fri">🚀 Démarrer gratuitement</span></button>
+      <button class="btn-secondary"><span class="ari">▶ شاهد الفيديو</span><span class="fri">▶ Voir la démo</span></button>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">+1200</div><div class="stat-label"><span class="ari">صالون في تونس</span><span class="fri">salons en Tunisie</span></div></div>
+      <div><div class="stat-num">5M+</div><div class="stat-label"><span class="ari">دينار معاملات</span><span class="fri">DT de transactions</span></div></div>
+      <div><div class="stat-num">99.9%</div><div class="stat-label"><span class="ari">وقت تشغيل</span><span class="fri">de disponibilité</span></div></div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="dashboard-mockup">
+      <div class="mock-header">
+        <div class="mock-dot" style="background:#ff5f5f"></div>
+        <div class="mock-dot" style="background:#ffbd2e"></div>
+        <div class="mock-dot" style="background:#27c93f"></div>
+        <span class="mock-title ari">لوحة التحكم</span><span class="mock-title fri">Tableau de bord</span>
+      </div>
+      <div class="mock-stats-row">
+        <div class="mock-stat"><div class="mock-stat-num">124</div><div class="mock-stat-label ari">حجز اليوم</div><div class="mock-stat-label fri">RDV aujourd'hui</div></div>
+        <div class="mock-stat"><div class="mock-stat-num">18,400</div><div class="mock-stat-label ari">إيرادات (د.ت)</div><div class="mock-stat-label fri">Revenus (DT)</div></div>
+        <div class="mock-stat"><div class="mock-stat-num">96%</div><div class="mock-stat-label ari">رضا الزبائن</div><div class="mock-stat-label fri">Satisfaction</div></div>
+      </div>
+      <div class="mock-chart">
+        <div class="mock-chart-title ari">إيرادات الأسبوع</div><div class="mock-chart-title fri">Revenus de la semaine</div>
+        <div class="chart-bars">
+          <div class="chart-bar" style="height:45%"></div><div class="chart-bar" style="height:70%"></div>
+          <div class="chart-bar" style="height:55%"></div><div class="chart-bar" style="height:85%"></div>
+          <div class="chart-bar" style="height:65%"></div><div class="chart-bar" style="height:90%"></div>
+          <div class="chart-bar" style="height:75%"></div>
+        </div>
+      </div>
+      <div class="mock-booking-item">
+        <div class="mock-avatar"></div>
+        <div style="flex:1"><div class="mock-booking-name">سارة / Sara</div><div class="mock-booking-service">قص وصبغ · Coupe & Couleur — 14:30</div></div>
+        <span class="mock-badge badge-ok"><span class="ari">مؤكد</span><span class="fri">Confirmé</span></span>
+      </div>
+      <div class="mock-booking-item">
+        <div class="mock-avatar" style="background:linear-gradient(135deg,#4ECDC4,#45B7D1)"></div>
+        <div style="flex:1"><div class="mock-booking-name">نورة / Nour</div><div class="mock-booking-service">مانيكير · Manucure — 16:00</div></div>
+        <span class="mock-badge badge-wait"><span class="ari">انتظار</span><span class="fri">En attente</span></span>
+      </div>
+    </div>
+    <div class="float-card fc1">
+      <div class="float-val">+32%</div>
+      <div class="float-label ar">نمو الإيرادات هذا الشهر</div>
+      <div class="float-label fr">Croissance ce mois</div>
+    </div>
+    <div class="float-card fc2">
+      <div style="font-weight:700;font-size:12px">17 <span class="ari">حجز جديد</span><span class="fri">nouveaux RDV</span></div>
+      <div class="float-label ar">منذ ساعة</div><div class="float-label fr">depuis 1h</div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS -->
+<div class="logos-section">
+  <div class="logos-label ar">يثقوا فينا أكثر من 1200 صالون في تونس</div>
+  <div class="logos-label fr">Plus de 1200 salons nous font confiance en Tunisie</div>
+  <div class="logos-row">
+    <div class="logo-item">SALON TUNIS</div><div class="logo-item">GLOW SPA</div>
+    <div class="logo-item">BEAUTY SFAX</div><div class="logo-item">LASH SOUSSE</div>
+    <div class="logo-item">GLAMOUR CENTER</div><div class="logo-item">NAILS NABEUL</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="section-tag ar">المميزات</div><div class="section-tag fr">Fonctionnalités</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:18px">
+      <div>
+        <h2 class="section-title ar">كل ما تحتاجه<br>في منصة واحدة</h2>
+        <h2 class="section-title fr">Tout ce qu'il vous faut<br>en une seule plateforme</h2>
+      </div>
+      <p class="section-subtitle ar">من إدارة المواعيد إلى تحليل الأداء، كل الأدوات في مكان واحد.</p>
+      <p class="section-subtitle fr">De la gestion des rendez-vous à l'analyse des performances, tous vos outils réunis.</p>
+    </div>
+    <div class="features-grid aos">
+      <div class="feature-card"><div class="feature-icon">📅</div>
+        <h3><span class="ari">إدارة المواعيد الذكية</span><span class="fri">Rendez-vous intelligents</span></h3>
+        <p class="ar">جدولة تلقائية مع تذكيرات SMS. قلل حالات عدم الحضور بنسبة 80%.</p>
+        <p class="fr">Planification automatique avec rappels SMS. Réduisez les no-shows de 80%.</p>
+      </div>
+      <div class="feature-card"><div class="feature-icon">💳</div>
+        <h3><span class="ari">نقطة البيع المتكاملة</span><span class="fri">Caisse intégrée</span></h3>
+        <p class="ar">فواتير سريعة وطرق دفع متعددة — كاش، بطاقة، والمزيد.</p>
+        <p class="fr">Facturation rapide et modes de paiement multiples — espèces, carte et plus.</p>
+      </div>
+      <div class="feature-card"><div class="feature-icon">📦</div>
+        <h3><span class="ari">إدارة المخزون</span><span class="fri">Gestion des stocks</span></h3>
+        <p class="ar">تتبع المنتجات في الوقت الفعلي مع تنبيهات تلقائية.</p>
+        <p class="fr">Suivi des produits en temps réel avec alertes automatiques de rupture.</p>
+      </div>
+      <div class="feature-card"><div class="feature-icon">👥</div>
+        <h3><span class="ari">إدارة العمال</span><span class="fri">Gestion des employés</span></h3>
+        <p class="ar">جداول العمل، الإجازات، والعمولات — منظم وواضح.</p>
+        <p class="fr">Plannings, congés et commissions — organisés et transparents.</p>
+      </div>
+      <div class="feature-card"><div class="feature-icon">📊</div>
+        <h3><span class="ari">تقارير وتحليلات</span><span class="fri">Rapports & Analyses</span></h3>
+        <p class="ar">أكثر من 100 تقرير لتتخذ قرارات مبنية على الأرقام.</p>
+        <p class="fr">Plus de 100 rapports détaillés pour des décisions basées sur les données.</p>
+      </div>
+      <div class="feature-card"><div class="feature-icon">🎯</div>
+        <h3><span class="ari">تسويق ذكي</span><span class="fri">Marketing intelligent</span></h3>
+        <p class="ar">حملات SMS، برامج ولاء، ونقاط مكافآت تلقائية.</p>
+        <p class="fr">Campagnes SMS, programmes de fidélité et récompenses automatiques.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how-section" id="how">
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="text-align:center">
+      <div class="section-tag ar" style="justify-content:center">كيف يعمل</div>
+      <div class="section-tag fr" style="justify-content:center">Comment ça marche</div>
+      <h2 class="section-title ar">ابدأ في 4 خطوات بسيطة</h2>
+      <h2 class="section-title fr">Démarrez en 4 étapes simples</h2>
+      <p class="section-subtitle ar" style="margin:0 auto">ما تحتاجش لخبرة تقنية. نعاونك تبدأ في أقل من ساعة.</p>
+      <p class="section-subtitle fr" style="margin:0 auto">Aucune expertise technique requise. Démarrez en moins d'une heure.</p>
+    </div>
+    <div class="steps-container aos">
+      <div class="step-item"><div class="step-num">1</div>
+        <h4><span class="ari">سجّل نشاطك</span><span class="fri">Inscrivez votre salon</span></h4>
+        <p class="ar">دخّل معلومات صالونك والخدمات في دقائق.</p>
+        <p class="fr">Saisissez les informations de votre salon en quelques minutes.</p>
+      </div>
+      <div class="step-item"><div class="step-num">2</div>
+        <h4><span class="ari">زيد فريقك</span><span class="fri">Ajoutez votre équipe</span></h4>
+        <p class="ar">زيد العمال وحدد مواعيد خدمتهم.</p>
+        <p class="fr">Ajoutez vos employés et définissez leurs horaires.</p>
+      </div>
+      <div class="step-item"><div class="step-num">3</div>
+        <h4><span class="ari">شارك رابط الحجز</span><span class="fri">Partagez votre lien</span></h4>
+        <p class="ar">احصل على رابط حجز فوري وشاركه مع الزبائن.</p>
+        <p class="fr">Obtenez un lien de réservation et partagez-le avec vos clients.</p>
+      </div>
+      <div class="step-item"><div class="step-num">4</div>
+        <h4><span class="ari">طوّر تجارتك</span><span class="fri">Développez votre activité</span></h4>
+        <p class="ar">تابع الأداء وخذ قرارات مبنية على أرقام حقيقية.</p>
+        <p class="fr">Suivez vos performances et prenez des décisions éclairées.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="text-align:center">
+      <div class="section-tag ar" style="justify-content:center">الأسعار</div>
+      <div class="section-tag fr" style="justify-content:center">Tarifs</div>
+      <h2 class="section-title ar">خطط تناسب كل الأحجام</h2>
+      <h2 class="section-title fr">Des formules pour tous les besoins</h2>
+      <p class="section-subtitle ar" style="margin:0 auto">جرّب مجاناً 14 يوم. ما فيش حاجة تخسرها.</p>
+      <p class="section-subtitle fr" style="margin:0 auto">Essayez gratuitement pendant 14 jours. Sans engagement.</p>
+    </div>
+    <div class="pricing-grid aos">
+      <div class="pricing-card">
+        <div class="plan-name ar">الأساسي</div><div class="plan-name fr">Essentiel</div>
+        <div class="plan-price">49 <span>د.ت / DT</span></div>
+        <div class="plan-period ar">كل شهر / فرع واحد</div><div class="plan-period fr">par mois / 1 salon</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li><span class="ari">إدارة المواعيد</span><span class="fri">Gestion des RDV</span></li>
+          <li><span class="ari">نقطة البيع الأساسية</span><span class="fri">Caisse de base</span></li>
+          <li><span class="ari">حتى 3 عمال</span><span class="fri">Jusqu'à 3 employés</span></li>
+          <li><span class="ari">التقارير الأساسية</span><span class="fri">Rapports de base</span></li>
+          <li class="off"><span class="ari">إدارة المخزون</span><span class="fri">Gestion des stocks</span></li>
+          <li class="off"><span class="ari">حملات التسويق</span><span class="fri">Campagnes marketing</span></li>
+        </ul>
+        <button class="plan-btn plan-btn-outline"><span class="ari">ابدأ مجاناً</span><span class="fri">Essai gratuit</span></button>
+      </div>
+      <div class="pricing-card popular">
+        <div class="popular-badge"><span class="ari">الأكثر طلباً</span><span class="fri">Le plus populaire</span></div>
+        <div class="plan-name ar">الاحترافي</div><div class="plan-name fr">Pro</div>
+        <div class="plan-price">99 <span>د.ت / DT</span></div>
+        <div class="plan-period ar">كل شهر / فرعين</div><div class="plan-period fr">par mois / 2 salons</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li><span class="ari">مواعيد متقدمة</span><span class="fri">RDV avancés</span></li>
+          <li><span class="ari">نقطة البيع الكاملة</span><span class="fri">Caisse complète</span></li>
+          <li><span class="ari">عمال بلا حدود</span><span class="fri">Employés illimités</span></li>
+          <li><span class="ari">تقارير متقدمة (100+)</span><span class="fri">Rapports avancés (100+)</span></li>
+          <li><span class="ari">إدارة المخزون</span><span class="fri">Gestion des stocks</span></li>
+          <li><span class="ari">حملات SMS وبريد</span><span class="fri">Campagnes SMS & email</span></li>
+        </ul>
+        <button class="plan-btn plan-btn-gold"><span class="ari">ابدأ مجاناً</span><span class="fri">Essai gratuit</span></button>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-name ar">المؤسسي</div><div class="plan-name fr">Entreprise</div>
+        <div class="plan-price">199 <span>د.ت / DT</span></div>
+        <div class="plan-period ar">كل شهر / فروع بلا حدود</div><div class="plan-period fr">par mois / salons illimités</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li><span class="ari">كل مميزات Pro</span><span class="fri">Tout le plan Pro</span></li>
+          <li><span class="ari">فروع بلا حدود</span><span class="fri">Salons illimités</span></li>
+          <li><span class="ari">تطبيق جوال مخصص</span><span class="fri">Application mobile dédiée</span></li>
+          <li><span class="ari">مدير حساب خاص</span><span class="fri">Account manager dédié</span></li>
+          <li><span class="ari">دعم 24/7</span><span class="fri">Support 24h/24</span></li>
+          <li><span class="ari">تدريب مجاني</span><span class="fri">Formation gratuite</span></li>
+        </ul>
+        <button class="plan-btn plan-btn-outline"><span class="ari">تواصل معانا</span><span class="fri">Nous contacter</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="cta-content aos">
+    <div class="section-tag ar" style="justify-content:center;margin-bottom:14px">ابدأ الآن</div>
+    <div class="section-tag fr" style="justify-content:center;margin-bottom:14px">Commencez maintenant</div>
+    <h2 class="ar">حوّل صالونك اليوم<br><span class="hl">مجاناً لمدة 14 يوم</span></h2>
+    <h2 class="fr">Transformez votre salon<br><span class="hl">14 jours gratuits</span></h2>
+    <p class="ar">انضم لأكثر من 1200 صالون في تونس. ما فيش عقد، تنجم تلغي وقتاه حبيت.</p>
+    <p class="fr">Rejoignez plus de 1200 salons en Tunisie. Sans contrat, résiliable à tout moment.</p>
+    <div class="cta-input-group">
+      <input class="cta-input" type="email" placeholder="contact@monsalon.tn">
+      <button class="btn-gold" style="white-space:nowrap;padding:11px 26px"><span class="ari">ابدأ مجاناً ←</span><span class="fri">Démarrer →</span></button>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:12px">
+      <span class="ari">✓ إعداد مجاني &nbsp; ✓ دعم كامل &nbsp; ✓ بدون عقد</span>
+      <span class="fri">✓ Configuration gratuite &nbsp; ✓ Support complet &nbsp; ✓ Sans engagement</span>
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">لوميرا · Lumiera</div>
+        <p class="footer-desc ar">منصة إدارة متكاملة للصالونات في تونس. نعاونك تكبّر تجارتك بذكاء.</p>
+        <p class="footer-desc fr">Plateforme de gestion complète pour salons et centres de beauté en Tunisie.</p>
+        <div class="social-links">
+          <a class="social-btn" href="#">𝕏</a><a class="social-btn" href="#">in</a>
+          <a class="social-btn" href="#">📸</a><a class="social-btn" href="#">▶</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5><span class="ari">المنتج</span><span class="fri">Produit</span></h5>
+        <ul>
+          <li><a href="#"><span class="ari">المميزات</span><span class="fri">Fonctionnalités</span></a></li>
+          <li><a href="#"><span class="ari">الأسعار</span><span class="fri">Tarifs</span></a></li>
+          <li><a href="#"><span class="ari">التكاملات</span><span class="fri">Intégrations</span></a></li>
+          <li><a href="#"><span class="ari">التحديثات</span><span class="fri">Mises à jour</span></a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5><span class="ari">الشركة</span><span class="fri">Entreprise</span></h5>
+        <ul>
+          <li><a href="#"><span class="ari">من نحن</span><span class="fri">À propos</span></a></li>
+          <li><a href="#"><span class="ari">المدونة</span><span class="fri">Blog</span></a></li>
+          <li><a href="#"><span class="ari">الشركاء</span><span class="fri">Partenaires</span></a></li>
+          <li><a href="#"><span class="ari">وظائف</span><span class="fri">Carrières</span></a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5><span class="ari">الدعم</span><span class="fri">Support</span></h5>
+        <ul>
+          <li><a href="#"><span class="ari">مركز المساعدة</span><span class="fri">Centre d'aide</span></a></li>
+          <li><a href="#"><span class="ari">تواصل معانا</span><span class="fri">Contactez-nous</span></a></li>
+          <li><a href="#"><span class="ari">الشروط</span><span class="fri">CGU</span></a></li>
+          <li><a href="#"><span class="ari">الخصوصية</span><span class="fri">Confidentialité</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 لوميرا · Lumiera. <span class="ari">جميع الحقوق محفوظة</span><span class="fri">Tous droits réservés</span>.</span>
+      <span>🇹🇳 <span class="ari">صنعنا بـ ❤️ في تونس</span><span class="fri">Fait avec ❤️ en Tunisie</span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+function setLang(lang) {
+  const html = document.getElementById('html-root');
+  const body = document.body;
+  if (lang === 'ar') {
+    html.setAttribute('lang','ar'); html.setAttribute('dir','rtl');
+    body.classList.replace('lang-fr','lang-ar');
+    document.getElementById('btn-ar').classList.add('active');
+    document.getElementById('btn-fr').classList.remove('active');
+    document.title = 'لوميرا — منصة إدارة الصالونات في تونس';
+  } else {
+    html.setAttribute('lang','fr'); html.setAttribute('dir','ltr');
+    body.classList.replace('lang-ar','lang-fr');
+    document.getElementById('btn-fr').classList.add('active');
+    document.getElementById('btn-ar').classList.remove('active');
+    document.title = 'Lumiera — Plateforme de gestion de salons en Tunisie';
+  }
+}
+
+const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible'); }), {threshold:0.1});
+document.querySelectorAll('.aos').forEach(el => obs.observe(el));
+
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').style.padding = window.scrollY > 60 ? '12px 60px' : '18px 60px';
+});
+</script>
+
+<script>
+window.addEventListener('load', async () => {
+  // Check login status - show user name if logged in
+  if (window.API && API.Auth.isLoggedIn()) {
+    const user = API.Auth.getUser();
+    const navRight = document.querySelector('.nav-right');
+    if (navRight && user) {
+      const loginBtn = navRight.querySelector('.btn-nav-outline');
+      if (loginBtn) loginBtn.textContent = user.prenom + ' — ' + (user.role === 'owner' ? 'Propriétaire' : 'Client');
+      loginBtn.onclick = () => window.location.href = '/app';
+    }
+  }
+  // Load real salons from API
+  try {
+    const salons = await API.SalonAPI.getAll();
+    if (salons && salons.length && document.getElementById('offers-grid')) {
+      // Could inject real salon cards here
+      console.log('Salons chargés:', salons.length);
+    }
+  } catch(e) { /* API not available in static mode */ }
+});
+</script>
+</body>
+</html>

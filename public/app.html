@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوميرا · Lumiera — Application</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#C9A84C; --gold-l:#E8C96A; --gold-d:#9A7830;
+  --dark:#0D0D0D; --dark2:#141414; --dark3:#1C1C1C; --dark4:#242424; --dark5:#2C2C2C;
+  --white:#F5F0E8; --muted:#6B7280; --muted2:#9CA3AF;
+  --rose:#E8748A; --teal:#4ECDC4; --green:#22C55E; --red:#EF4444; --blue:#3B82F6;
+  --sidebar-w:240px;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Cairo',sans-serif;background:var(--dark);color:var(--white)}
+
+/* ══ PAGES ══ */
+.page{display:none;width:100%;height:100%;position:absolute;top:0;left:0}
+.page.active{display:flex}
+
+/* ══════════════════════════════════════════
+   AUTH PAGES — Login & Register
+══════════════════════════════════════════ */
+.auth-page{
+  background:var(--dark);
+  align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.auth-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 70% at 30% 40%,rgba(201,168,76,.09) 0%,transparent 65%),
+             radial-gradient(ellipse 50% 50% at 80% 70%,rgba(232,116,138,.05) 0%,transparent 55%);
+}
+.auth-grid{position:absolute;inset:0;opacity:.03;
+  background-image:linear-gradient(var(--gold) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--gold) 1px,transparent 1px);
+  background-size:50px 50px}
+.auth-card{
+  position:relative;z-index:2;
+  background:var(--dark3);border:1px solid rgba(201,168,76,.2);
+  border-radius:24px;padding:44px 48px;width:420px;
+  box-shadow:0 40px 100px rgba(0,0,0,.6);
+  animation:fadeUp .6s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+.auth-logo{text-align:center;margin-bottom:32px}
+.auth-logo-icon{
+  width:60px;height:60px;border-radius:18px;margin:0 auto 14px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:900;color:var(--dark);font-family:'Sora',sans-serif;
+}
+.auth-logo-name{font-size:24px;font-weight:900;color:var(--gold)}
+.auth-logo-sub{font-size:12px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px}
+
+.auth-title{font-size:20px;font-weight:800;margin-bottom:6px;text-align:center}
+.auth-subtitle{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px;font-family:'Sora',sans-serif}
+
+.form-group{margin-bottom:18px}
+.form-label{font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:7px;display:block;letter-spacing:.5px}
+.form-input{
+  width:100%;padding:12px 16px;background:var(--dark4);
+  border:1px solid rgba(255,255,255,.08);border-radius:10px;
+  color:var(--white);font-family:'Cairo',sans-serif;font-size:14px;outline:none;
+  transition:border-color .2s;
+}
+.form-input:focus{border-color:rgba(201,168,76,.5)}
+.form-input::placeholder{color:var(--muted)}
+
+.role-switcher{display:flex;gap:8px;margin-bottom:22px}
+.role-btn{
+  flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);
+  background:var(--dark4);color:var(--muted);font-family:'Cairo',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;
+}
+.role-btn.active{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold)}
+
+.btn-full{
+  width:100%;padding:14px;border-radius:12px;border:none;cursor:pointer;
+  font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;transition:all .3s;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark);
+  box-shadow:0 6px 24px rgba(201,168,76,.35);
+}
+.btn-full:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(201,168,76,.55)}
+
+.auth-footer{text-align:center;margin-top:20px;font-size:13px;color:var(--muted)}
+.auth-link{color:var(--gold);cursor:pointer;text-decoration:underline}
+
+/* ══════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════ */
+.app-shell{flex-direction:row;width:100%;height:100%}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--dark2);
+  border-left:1px solid rgba(255,255,255,.05);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  position:relative;z-index:10;
+}
+.sidebar-logo{
+  padding:22px 20px 16px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+}
+.sidebar-logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:900;color:var(--dark);font-family:'Sora',sans-serif;flex-shrink:0;
+}
+.sidebar-logo-text{font-size:16px;font-weight:900;color:var(--gold)}
+.sidebar-logo-sub{font-size:10px;color:var(--muted);font-family:'Sora',sans-serif}
+
+.sidebar-nav{flex:1;overflow-y:auto;padding:12px 10px}
+.sidebar-nav::-webkit-scrollbar{display:none}
+.nav-section-label{
+  font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);padding:8px 10px 4px;font-family:'Sora',sans-serif;
+}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;border-radius:10px;margin-bottom:3px;
+  cursor:pointer;transition:all .2s;color:var(--muted);font-size:14px;font-weight:500;
+  position:relative;
+}
+.nav-item:hover{background:var(--dark3);color:var(--white)}
+.nav-item.active{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.15)}
+.nav-item.active::before{content:'';position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--gold);border-radius:2px}
+.nav-icon{font-size:17px;flex-shrink:0;width:22px;text-align:center}
+.nav-badge{margin-inline-start:auto;background:var(--rose);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:'Sora',sans-serif}
+
+.sidebar-footer{
+  padding:14px 10px;
+  border-top:1px solid rgba(255,255,255,.05);flex-shrink:0;
+}
+.user-card{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;
+  background:var(--dark3);cursor:pointer;
+  transition:background .2s;
+}
+.user-card:hover{background:var(--dark4)}
+.user-avatar{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--rose),var(--gold));
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+}
+.user-name{font-size:13px;font-weight:700}
+.user-role{font-size:10px;color:var(--muted);font-family:'Sora',sans-serif}
+.logout-btn{margin-inline-start:auto;font-size:16px;color:var(--muted);cursor:pointer;transition:color .2s}
+.logout-btn:hover{color:var(--red)}
+
+/* MAIN CONTENT */
+.main-content{
+  flex:1;overflow-y:auto;background:var(--dark);
+  display:flex;flex-direction:column;
+}
+.main-content::-webkit-scrollbar{width:5px}
+.main-content::-webkit-scrollbar-thumb{background:var(--dark4);border-radius:3px}
+
+/* TOP NAV */
+.top-nav{
+  padding:16px 28px;background:var(--dark2);
+  border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;position:sticky;top:0;z-index:5;
+}
+.top-nav-title{font-size:20px;font-weight:800}
+.top-nav-title span{color:var(--gold);font-size:13px;font-weight:400;margin-inline-start:10px;font-family:'Sora',sans-serif}
+.top-nav-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{
+  width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.07);
+  background:var(--dark3);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:17px;transition:all .2s;color:var(--muted);
+}
+.icon-btn:hover{border-color:rgba(201,168,76,.3);color:var(--gold)}
+.notif-dot{position:relative}
+.notif-dot::after{
+  content:'';position:absolute;top:6px;right:6px;width:7px;height:7px;
+  border-radius:50%;background:var(--rose);border:2px solid var(--dark3);
+}
+
+/* PAGE CONTENT */
+.page-content{padding:28px;flex:1}
+
+/* ══ WIDGETS ══ */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.section-title-sm{font-size:17px;font-weight:800}
+.section-title-sub{font-size:12px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:2px}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{
+  background:var(--dark3);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius);padding:20px 22px;transition:all .3s;position:relative;overflow:hidden;
+}
+.kpi-card:hover{border-color:rgba(201,168,76,.25);transform:translateY(-3px)}
+.kpi-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-l));opacity:0;transition:opacity .3s;
+}
+.kpi-card:hover::before{opacity:1}
+.kpi-icon{font-size:28px;margin-bottom:12px}
+.kpi-value{font-size:28px;font-weight:900;line-height:1;margin-bottom:4px}
+.kpi-label{font-size:12px;color:var(--muted);font-family:'Sora',sans-serif}
+.kpi-change{font-size:12px;font-weight:600;margin-top:8px;font-family:'Sora',sans-serif;display:flex;align-items:center;gap:4px}
+.kpi-change.up{color:var(--green)} .kpi-change.down{color:var(--red)}
+
+/* CHART PLACEHOLDER */
+.chart-card{
+  background:var(--dark3);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius);padding:22px;
+}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.chart-title{font-size:15px;font-weight:700}
+.chart-bars{display:flex;align-items:flex-end;gap:10px;height:140px}
+.chart-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.bar{
+  width:100%;border-radius:6px 6px 0 0;
+  background:linear-gradient(180deg,var(--gold) 0%,var(--gold-d) 100%);
+  opacity:.8;transition:opacity .2s;cursor:pointer;min-height:4px;
+}
+.bar:hover{opacity:1}
+.bar-label{font-size:10px;color:var(--muted);font-family:'Sora',sans-serif}
+
+/* TABLE */
+.table-card{
+  background:var(--dark3);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius);overflow:hidden;
+}
+.table-header{
+  padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:space-between;
+}
+table{width:100%;border-collapse:collapse}
+th{padding:12px 20px;text-align:right;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-family:'Sora',sans-serif;background:var(--dark4)}
+td{padding:13px 20px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* BADGES */
+.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;white-space:nowrap}
+.badge-green{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-gold{background:rgba(201,168,76,.15);color:var(--gold)}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red)}
+.badge-blue{background:rgba(59,130,246,.15);color:var(--blue)}
+.badge-muted{background:rgba(255,255,255,.07);color:var(--muted2)}
+
+/* BUTTONS */
+.btn{padding:9px 20px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark)}
+.btn-gold:hover{box-shadow:0 4px 16px rgba(201,168,76,.4);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted2)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
+
+/* SEARCH */
+.search-bar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--dark3);border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;padding:10px 16px;
+}
+.search-bar input{background:transparent;border:none;outline:none;color:var(--white);font-family:'Cairo',sans-serif;font-size:14px;flex:1}
+.search-bar input::placeholder{color:var(--muted)}
+
+/* GRID 2 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+/* EMPLOYEE CARD */
+.emp-card{
+  background:var(--dark3);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius);padding:20px;transition:all .3s;text-align:center;
+}
+.emp-card:hover{border-color:rgba(201,168,76,.25);transform:translateY(-3px)}
+.emp-avatar{
+  width:60px;height:60px;border-radius:16px;margin:0 auto 12px;
+  display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;
+}
+.emp-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.emp-role{font-size:12px;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:12px}
+.emp-stats{display:flex;justify-content:center;gap:20px}
+.emp-stat-val{font-size:16px;font-weight:800;color:var(--gold)}
+.emp-stat-lbl{font-size:10px;color:var(--muted);font-family:'Sora',sans-serif}
+
+/* STOCK ITEM */
+.stock-row{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.04)}
+.stock-row:last-child{border-bottom:none}
+.stock-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.stock-name{font-size:14px;font-weight:600;flex:1}
+.stock-sub{font-size:11px;color:var(--muted);font-family:'Sora',sans-serif}
+.progress-bar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;flex:1;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* POS */
+.pos-layout{display:grid;grid-template-columns:1fr 340px;gap:16px;height:calc(100vh - 130px)}
+.pos-services{background:var(--dark3);border-radius:var(--radius);border:1px solid rgba(255,255,255,.06);overflow-y:auto;padding:16px}
+.pos-cart{background:var(--dark3);border-radius:var(--radius);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column}
+.service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.service-item{
+  background:var(--dark4);border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;text-align:center;
+}
+.service-item:hover{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.service-item.selected{border-color:var(--gold);background:rgba(201,168,76,.15)}
+.service-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.service-price{font-size:15px;font-weight:900;color:var(--gold);font-family:'Sora',sans-serif}
+.service-dur{font-size:10px;color:var(--muted);font-family:'Sora',sans-serif}
+
+.cart-header{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06);font-size:15px;font-weight:700}
+.cart-items{flex:1;overflow-y:auto;padding:12px 18px}
+.cart-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.cart-item:last-child{border-bottom:none}
+.cart-item-name{flex:1;font-size:13px;font-weight:600}
+.cart-item-price{font-size:13px;font-weight:700;color:var(--gold);font-family:'Sora',sans-serif}
+.cart-remove{color:var(--muted);cursor:pointer;font-size:16px;transition:color .2s}
+.cart-remove:hover{color:var(--red)}
+.cart-footer{padding:16px 18px;border-top:1px solid rgba(255,255,255,.06)}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cart-total-label{font-size:13px;color:var(--muted);font-family:'Sora',sans-serif}
+.cart-total-val{font-size:26px;font-weight:900;color:var(--gold);font-family:'Sora',sans-serif}
+.pay-methods{display:flex;gap:8px;margin-bottom:14px}
+.pay-method{flex:1;padding:9px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:var(--dark4);text-align:center;cursor:pointer;transition:all .2s;font-size:12px;font-weight:600;color:var(--muted)}
+.pay-method.active{border-color:var(--gold);background:rgba(201,168,76,.12);color:var(--gold)}
+
+/* REPORTS */
+.report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.mini-chart{height:80px;display:flex;align-items:flex-end;gap:4px}
+.mini-bar{flex:1;border-radius:3px 3px 0 0;opacity:.7;transition:opacity .2s}
+.mini-bar:hover{opacity:1}
+
+/* BOOKING CALENDAR */
+.cal-grid{display:grid;grid-template-columns:1fr 300px;gap:16px}
+.time-slots{display:flex;flex-direction:column;gap:8px}
+.time-slot{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  background:var(--dark4);border-radius:10px;border:1px solid rgba(255,255,255,.05);
+  cursor:pointer;transition:all .2s;
+}
+.time-slot:hover{border-color:rgba(201,168,76,.25)}
+.time-slot.booked{border-color:rgba(78,205,196,.2);background:rgba(78,205,196,.05)}
+.time-slot.free{border-color:rgba(34,197,94,.15)}
+.slot-time{font-size:13px;font-weight:700;font-family:'Sora',sans-serif;color:var(--gold);width:50px}
+.slot-info{flex:1}
+.slot-name{font-size:13px;font-weight:600}
+.slot-service{font-size:11px;color:var(--muted);font-family:'Sora',sans-serif}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;left:24px;
+  background:var(--dark3);border:1px solid rgba(201,168,76,.3);
+  border-radius:12px;padding:14px 20px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;
+  font-size:13px;font-weight:600;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-icon{font-size:18px}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--dark3);border:1px solid rgba(201,168,76,.2);
+  border-radius:20px;padding:32px;width:480px;max-width:90vw;
+  animation:fadeUp .3s ease;
+}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
+
+/* LANDING PAGE in app */
+.landing-in-app{overflow-y:auto;width:100%;height:100%}
+
+/* CLIENT TABS */
+.client-tab{
+  padding:8px 18px;border-radius:9px;border:none;background:transparent;
+  color:var(--muted);font-family:'Cairo',sans-serif;font-size:13px;
+  font-weight:600;cursor:pointer;transition:all .2s;
+}
+.client-tab.active{background:var(--dark4);color:var(--gold);border:1px solid rgba(201,168,76,.2)}
+.client-tab:hover:not(.active){color:var(--white)}
+
+/* SLOT CHIPS */
+.slot-chip{
+  padding:10px 6px;border-radius:10px;text-align:center;font-size:13px;
+  font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;transition:all .2s;
+}
+.slot-chip.available{
+  background:rgba(78,205,196,.12);border:1px solid rgba(78,205,196,.3);color:var(--teal);
+}
+.slot-chip.available:hover{background:rgba(78,205,196,.25);transform:translateY(-2px)}
+.slot-chip.taken{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  color:var(--muted);cursor:not-allowed;text-decoration:line-through;
+}
+.slot-chip.selected{
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  border:1px solid var(--gold);color:var(--dark);transform:translateY(-2px);
+  box-shadow:0 4px 14px rgba(201,168,76,.4);
+}
+
+@media print {
+    body { padding:0; background:white; }
+    .page { box-shadow:none; border-radius:0; }
+  }
+@media(max-width:768px){.sidebar{display:none}.kpi-grid{grid-template-columns:1fr 1fr}}
+</style>
+<script src="/api.js"></script>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     PAGE: LOGIN
+════════════════════════════════════════ -->
+<div class="page auth-page active" id="page-login">
+  <div class="auth-bg"></div>
+  <div class="auth-grid"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">L</div>
+      <div class="auth-logo-name">لوميرا · Lumiera</div>
+      <div class="auth-logo-sub">منصة إدارة الصالونات · Tunisie</div>
+    </div>
+    <div class="auth-title">مرحباً بك!</div>
+    <div class="auth-subtitle">Connectez-vous à votre espace</div>
+
+    <div class="role-switcher">
+      <div class="role-btn active" id="login-role-owner" onclick="setRole(this,'owner')">صاحب الصالون</div>
+      <div class="role-btn" id="login-role-client" onclick="setRole(this,'client')">الزبون · Client</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">البريد الإلكتروني / Email</label>
+      <input class="form-input" type="email" placeholder="contact@monsalon.tn" value="demo@lumiera.tn">
+    </div>
+    <div class="form-group">
+      <label class="form-label">كلمة السر / Mot de passe</label>
+      <input class="form-input" type="password" placeholder="••••••••" value="demo1234">
+    </div>
+
+    <button class="btn-full" onclick="handleLogin()">تسجيل الدخول · Se connecter</button>
+
+    <div class="auth-footer">
+      ما عندكش حساب؟ <span class="auth-link" onclick="navigate('register')">سجّل الآن · Créer un compte</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE: REGISTER
+════════════════════════════════════════ -->
+<div class="page auth-page" id="page-register">
+  <div class="auth-bg"></div>
+  <div class="auth-grid"></div>
+  <div class="auth-card" style="width:480px">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">L</div>
+      <div class="auth-logo-name">لوميرا · Lumiera</div>
+      <div class="auth-logo-sub">إنشاء حساب جديد · Créer un compte</div>
+    </div>
+
+    <div class="role-switcher">
+      <div class="role-btn active" onclick="setRole(this,'owner')">صاحب الصالون</div>
+      <div class="role-btn" onclick="setRole(this,'client')">زبون</div>
+    </div>
+
+    <div class="grid2" style="gap:12px">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">الاسم الأول</label>
+        <input class="form-input" placeholder="أمينة">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">اسم العائلة</label>
+        <input class="form-input" placeholder="بن علي">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:14px">
+      <label class="form-label">اسم الصالون / Nom du salon</label>
+      <input class="form-input" placeholder="Salon Lumière">
+    </div>
+    <div class="form-group">
+      <label class="form-label">رقم الهاتف / Téléphone</label>
+      <input class="form-input" placeholder="+216 XX XXX XXX">
+    </div>
+    <div class="form-group">
+      <label class="form-label">البريد الإلكتروني / Email</label>
+      <input class="form-input" type="email" placeholder="contact@monsalon.tn">
+    </div>
+    <div class="form-group">
+      <label class="form-label">كلمة السر / Mot de passe</label>
+      <input class="form-input" type="password" placeholder="••••••••">
+    </div>
+
+    <button class="btn-full" onclick="handleRegister()">إنشاء الحساب · Créer le compte</button>
+    <div class="auth-footer">
+      عندك حساب؟ <span class="auth-link" onclick="navigate('login')">سجّل الدخول · Connexion</span>
+    </div>
+  </div>
+</div>
+
+    <button class="btn-full" onclick="handleRegister()">إنشاء الحساب · Créer le compte</button>
+    <div class="auth-footer">
+      عندك حساب؟ <span class="auth-link" onclick="navigate('login')">سجّل الدخول · Connexion</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE: CLIENT SPACE
+════════════════════════════════════════ -->
+<div class="page" id="page-client" style="flex-direction:column;background:var(--dark);overflow-y:auto">
+
+  <!-- CLIENT TOP NAV -->
+  <div style="position:sticky;top:0;z-index:100;background:var(--dark2);border-bottom:1px solid rgba(201,168,76,.15);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-l));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:var(--dark);font-family:'Sora',sans-serif">L</div>
+      <div>
+        <div style="font-size:15px;font-weight:900;color:var(--gold)">لوميرا · Lumiera</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">Espace Client</div>
+      </div>
+    </div>
+
+    <!-- CLIENT NAV TABS -->
+    <div style="display:flex;gap:4px;background:var(--dark3);border-radius:12px;padding:4px" id="client-tabs">
+      <button class="client-tab active" onclick="showClientTab('rdv')"     >مواعيدي · RDV</button>
+      <button class="client-tab"        onclick="showClientTab('services')">الخدمات · Services</button>
+      <button class="client-tab"        onclick="showClientTab('fidelite')">الولاء · Fidélité</button>
+      <button class="client-tab"        onclick="showClientTab('chatbot-c')">مساعد AI</button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="text-align:right">
+        <div style="font-size:13px;font-weight:700">سارة المرزوقي</div>
+        <div style="font-size:10px;color:var(--gold);font-family:'Sora',sans-serif">480 pts · Gold</div>
+      </div>
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--rose),var(--gold));display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer">س</div>
+      <button class="btn btn-outline btn-sm" onclick="API.AuthAPI.logout()">خروج</button>
+    </div>
+  </div>
+
+  <!-- CLIENT CONTENT -->
+  <div style="padding:28px;flex:1;max-width:1100px;margin:0 auto;width:100%">
+
+    <!-- ── TAB: MES RDV ── -->
+    <div id="client-tab-rdv">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:22px;font-weight:900">مواعيدي · Mes Rendez-vous</div>
+          <div style="font-size:13px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">تابع وأدر مواعيدك بسهولة</div>
+        </div>
+        <button class="btn btn-gold" onclick="openModal('modal-client-rdv')">+ حجز موعد جديد · Nouveau RDV</button>
+      </div>
+
+      <!-- KPIs -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
+        <div class="kpi-card"><div class="kpi-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif;color:var(--teal)">Total</div><div class="kpi-value" style="color:var(--teal)">12</div><div class="kpi-label">مجموع الزيارات · Total visites</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif;color:var(--green)">Next</div><div class="kpi-value" style="color:var(--green)">3</div><div class="kpi-label">مواعيد قادمة · A venir</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif;color:var(--gold)">PTS</div><div class="kpi-value" style="color:var(--gold)">480</div><div class="kpi-label">نقاط الولاء · Points</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif;color:var(--rose)">DT</div><div class="kpi-value" style="color:var(--rose)">195</div><div class="kpi-label">إنفاق الشهر (د.ت)</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:16px">
+        <!-- Liste RDV -->
+        <div class="table-card">
+          <div class="table-header">
+            <div class="chart-title">المواعيد القادمة · Prochains RDV</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" id="filter-all"    onclick="filterRDV('all')"    style="border-color:var(--gold);color:var(--gold)">الكل</button>
+              <button class="btn btn-outline btn-sm" id="filter-coming" onclick="filterRDV('coming')">قادم</button>
+              <button class="btn btn-outline btn-sm" id="filter-past"   onclick="filterRDV('past')">سابق</button>
+            </div>
+          </div>
+          <div id="rdv-list">
+            <!-- RDV 1 -->
+            <div class="rdv-item coming" style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background=''">
+              <div style="width:50px;height:50px;border-radius:14px;background:rgba(78,205,196,.1);border:1px solid rgba(78,205,196,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                <div style="font-size:18px;font-weight:900;color:var(--teal);line-height:1;font-family:'Sora',sans-serif">05</div>
+                <div style="font-size:9px;color:var(--muted);font-family:'Sora',sans-serif">MAR</div>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700">قص وصبغ · Coupe &amp; Couleur</div>
+                <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">14:30 — فاطمة الزيدي — 90 min — 85 د.ت</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px">
+                <span class="badge badge-green">مؤكد · Confirmé</span>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-sm btn-outline" onclick="openModal('modal-edit-rdv')">تعديل</button>
+                  <button class="btn btn-sm btn-red" onclick="openModal('modal-cancel-rdv')">إلغاء</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- RDV 2 -->
+            <div class="rdv-item coming" style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background=''">
+              <div style="width:50px;height:50px;border-radius:14px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                <div style="font-size:18px;font-weight:900;color:var(--gold);line-height:1;font-family:'Sora',sans-serif">12</div>
+                <div style="font-size:9px;color:var(--muted);font-family:'Sora',sans-serif">MAR</div>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700">مانيكير · Manucure</div>
+                <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">11:00 — ريم بن سالم — 45 min — 30 د.ت</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px">
+                <span class="badge badge-gold">انتظار · En attente</span>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-sm btn-outline" onclick="openModal('modal-edit-rdv')">تعديل</button>
+                  <button class="btn btn-sm btn-red" onclick="openModal('modal-cancel-rdv')">إلغاء</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- RDV 3 -->
+            <div class="rdv-item coming" style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background=''">
+              <div style="width:50px;height:50px;border-radius:14px;background:rgba(232,116,138,.1);border:1px solid rgba(232,116,138,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                <div style="font-size:18px;font-weight:900;color:var(--rose);line-height:1;font-family:'Sora',sans-serif">20</div>
+                <div style="font-size:9px;color:var(--muted);font-family:'Sora',sans-serif">MAR</div>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700">تنظيف بشرة · Soin visage</div>
+                <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">10:00 — ريم بن سالم — 60 min — 55 د.ت</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px">
+                <span class="badge badge-green">مؤكد · Confirmé</span>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-sm btn-outline" onclick="openModal('modal-edit-rdv')">تعديل</button>
+                  <button class="btn btn-sm btn-red" onclick="openModal('modal-cancel-rdv')">إلغاء</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- PAST RDV -->
+            <div class="rdv-item past" style="display:none;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.04);opacity:.65">
+              <div style="width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                <div style="font-size:18px;font-weight:900;color:var(--muted);line-height:1;font-family:'Sora',sans-serif">20</div>
+                <div style="font-size:9px;color:var(--muted);font-family:'Sora',sans-serif">FEV</div>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700">قص وصبغ · Coupe &amp; Couleur</div>
+                <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">14:30 — فاطمة الزيدي — 85 د.ت</div>
+              </div>
+              <span class="badge badge-muted">مكتمل · Terminé</span>
+            </div>
+            <div class="rdv-item past" style="display:none;align-items:center;gap:14px;padding:16px 20px;opacity:.65">
+              <div style="width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                <div style="font-size:18px;font-weight:900;color:var(--muted);line-height:1;font-family:'Sora',sans-serif">05</div>
+                <div style="font-size:9px;color:var(--muted);font-family:'Sora',sans-serif">FEV</div>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700">مانيكير · Manucure</div>
+                <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">11:00 — ريم بن سالم — 30 د.ت</div>
+              </div>
+              <span class="badge badge-muted">مكتمل · Terminé</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Créneaux disponibles -->
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="chart-card">
+            <div style="font-size:14px;font-weight:800;margin-bottom:14px">الأوقات المتاحة · Créneaux</div>
+            <input type="date" value="2026-03-05" class="form-input" style="margin-bottom:14px;font-size:12px">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="client-slots-grid">
+              <div onclick="selectSlot(this)" class="slot-chip available">09:00</div>
+              <div onclick="selectSlot(this)" class="slot-chip taken">10:00</div>
+              <div onclick="selectSlot(this)" class="slot-chip available">10:30</div>
+              <div onclick="selectSlot(this)" class="slot-chip taken">11:30</div>
+              <div onclick="selectSlot(this)" class="slot-chip available">13:00</div>
+              <div onclick="selectSlot(this)" class="slot-chip available">14:00</div>
+              <div onclick="selectSlot(this)" class="slot-chip taken">15:00</div>
+              <div onclick="selectSlot(this)" class="slot-chip available">15:30</div>
+              <div onclick="selectSlot(this)" class="slot-chip available">17:30</div>
+            </div>
+            <button id="btn-client-slot" class="btn btn-gold" style="width:100%;margin-top:12px;display:none;border-radius:10px" onclick="openModal('modal-client-rdv')">تأكيد هذا الوقت</button>
+          </div>
+
+          <!-- Prochain RDV highlight -->
+          <div style="background:linear-gradient(135deg,rgba(78,205,196,.12),rgba(78,205,196,.03));border:1px solid rgba(78,205,196,.25);border-radius:var(--radius);padding:18px 20px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);font-family:'Sora',sans-serif;margin-bottom:10px">Prochain RDV</div>
+            <div style="font-size:20px;font-weight:900;margin-bottom:4px">05 Mars 2026</div>
+            <div style="font-size:13px;color:var(--muted);font-family:'Sora',sans-serif">14:30 · قص وصبغ · فاطمة</div>
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(78,205,196,.15);font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">
+              تذكير SMS سيُرسل 24h قبل الموعد
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: SERVICES ── -->
+    <div id="client-tab-services" style="display:none">
+      <div style="font-size:22px;font-weight:900;margin-bottom:6px">الخدمات والأسعار · Services &amp; Tarifs</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:24px">اختر خدمتك واحجز مباشرة</div>
+
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px">
+        <!-- Catégorie Cheveux -->
+        <div class="table-card">
+          <div class="table-header"><div class="chart-title">الشعر · Cheveux</div></div>
+          <table>
+            <thead><tr><th>الخدمة</th><th>المدة</th><th>السعر</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div style="font-weight:600">قص شعر · Coupe</div></td><td style="font-family:'Sora',sans-serif;font-size:12px">30 min</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">35 د.ت</td><td><button class="btn btn-sm btn-gold" onclick="openModal('modal-client-rdv')">احجز</button></td></tr>
+              <tr><td><div style="font-weight:600">قص وصبغ · Coupe+Couleur</div></td><td style="font-family:'Sora',sans-serif;font-size:12px">90 min</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">85 د.ت</td><td><button class="btn btn-sm btn-gold" onclick="openModal('modal-client-rdv')">احجز</button></td></tr>
+              <tr><td><div style="font-weight:600">تصفيف · Brushing</div></td><td style="font-family:'Sora',sans-serif;font-size:12px">30 min</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">25 د.ت</td><td><button class="btn btn-sm btn-gold" onclick="openModal('modal-client-rdv')">احجز</button></td></tr>
+              <tr><td><div style="font-weight:600">علاج شعر · Soin</div></td><td style="font-family:'Sora',sans-serif;font-size:12px">45 min</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">45 د.ت</td><td><button class="btn btn-sm btn-gold" onclick="openModal('modal-client-rdv')">احجز</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Catégorie Esthétique -->
+        <div class="table-card">
+          <div class="table-header"><div class="chart-title">التجميل · Esthétique</div></div>
+          <table>
+            <thead><tr><th>الخدمة</th><th>المدة</th><th>السعر</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div style="font-weight:600">مانيكير · Manucure</div></td><td style="font-family:'Sora',sans-serif;font-size:12px">45 min</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">30 د.ت</td><td><button class="btn btn-sm btn-gold" onclick="openModal('modal-client-rdv')">احجز</button></td></tr>
+              <tr><td><div style="font-weight:600">باديكير · Pédicure</div></td><td style="font-family:'Sora',sans-serif;font-size:12px">50 min</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">35 د.ت</td><td><button class="btn btn-sm btn-gold" onclick="openModal('modal-client-rdv')">احجز</button></td></tr>
+              <tr><td><div style="font-weight:600">تنظيف بشرة · Soin visage</div></td><td style="font-family:'Sora',sans-serif;font-size:12px">60 min</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">55 د.ت</td><td><button class="btn btn-sm btn-gold" onclick="openModal('modal-client-rdv')">احجز</button></td></tr>
+              <tr><td><div style="font-weight:600">ميكاج · Maquillage</div></td><td style="font-family:'Sora',sans-serif;font-size:12px">60 min</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">60 د.ت</td><td><button class="btn btn-sm btn-gold" onclick="openModal('modal-client-rdv')">احجز</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Equipe -->
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title">فريقنا · Notre équipe</div></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px">
+          <div class="emp-card"><div class="emp-avatar" style="background:linear-gradient(135deg,#E8748A,#C9A84C)">ف</div><div class="emp-name">فاطمة الزيدي</div><div class="emp-role">Coiffeuse Senior</div><div style="margin:8px 0"><span class="badge badge-green">متاحة اليوم</span></div><button class="btn btn-outline btn-sm" style="width:100%" onclick="openModal('modal-client-rdv')">احجز معها</button></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:linear-gradient(135deg,#4ECDC4,#3B82F6)">ر</div><div class="emp-name">ريم بن سالم</div><div class="emp-role">Esthéticienne</div><div style="margin:8px 0"><span class="badge badge-green">متاحة اليوم</span></div><button class="btn btn-outline btn-sm" style="width:100%" onclick="openModal('modal-client-rdv')">احجز معها</button></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:linear-gradient(135deg,#22C55E,#4ECDC4)">س</div><div class="emp-name">سلمى الخميري</div><div class="emp-role">Manucure</div><div style="margin:8px 0"><span class="badge badge-gold">إجازة اليوم</span></div><button class="btn btn-outline btn-sm" style="width:100%;opacity:.5;cursor:not-allowed">غير متاحة</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: FIDELITE ── -->
+    <div id="client-tab-fidelite" style="display:none">
+      <div style="font-size:22px;font-weight:900;margin-bottom:6px">برنامج الولاء · Programme Fidélité</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:24px">اكسب نقاطك وتمتع بمكافآت حصرية</div>
+
+      <!-- Gold card -->
+      <div style="background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.06));border:1px solid rgba(201,168,76,.4);border-radius:20px;padding:28px 32px;margin-bottom:20px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;left:-20px;width:140px;height:140px;border-radius:50%;background:rgba(201,168,76,.07)"></div>
+        <div style="position:absolute;bottom:-30px;right:40px;width:100px;height:100px;border-radius:50%;background:rgba(201,168,76,.05)"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1">
+          <div>
+            <div style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Carte Fidélité</div>
+            <div style="font-size:26px;font-weight:900;margin-bottom:4px">سارة المرزوقي</div>
+            <div style="font-size:13px;color:var(--muted);font-family:'Sora',sans-serif">Membre depuis Janvier 2025</div>
+          </div>
+          <div style="background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark);padding:8px 20px;border-radius:24px;font-size:14px;font-weight:900;font-family:'Sora',sans-serif">GOLD</div>
+        </div>
+        <div style="margin-top:24px;position:relative;z-index:1">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:13px;color:var(--muted);font-family:'Sora',sans-serif">480 / 500 pts — Prochain cadeau</span>
+            <span style="font-size:13px;font-weight:700;color:var(--gold);font-family:'Sora',sans-serif">96%</span>
+          </div>
+          <div class="progress-bar" style="height:10px;border-radius:5px">
+            <div class="progress-fill" style="width:96%;background:linear-gradient(90deg,var(--gold-d),var(--gold),var(--gold-l));border-radius:5px"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--muted);font-family:'Sora',sans-serif">
+            <span>0 pts</span><span style="color:var(--gold);font-weight:600">Il vous manque 20 pts</span><span>500 pts</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Récompenses -->
+        <div class="table-card">
+          <div class="table-header"><div class="chart-title">المكافآت المتاحة · Récompenses</div></div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--dark4);border-radius:12px;border:1px solid rgba(255,255,255,.06)">
+              <div style="width:44px;height:44px;border-radius:12px;background:rgba(201,168,76,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--gold);flex-shrink:0">500</div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700">قص شعر مجاني · Coupe gratuite</div><div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif">500 نقطة — تنتهي 31/12/2026</div></div>
+              <button class="btn btn-sm btn-outline" style="opacity:.5;cursor:not-allowed;font-size:11px">قريباً</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--dark4);border-radius:12px;border:1px solid rgba(34,197,94,.2)">
+              <div style="width:44px;height:44px;border-radius:12px;background:rgba(34,197,94,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--green);flex-shrink:0">200</div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700">تخفيض 20% · Remise 20%</div><div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif">200 نقطة — متاح الآن</div></div>
+              <button class="btn btn-sm btn-gold" onclick="showToast('تم تطبيق التخفيض 20%')" style="font-size:11px">استخدم</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--dark4);border-radius:12px;border:1px solid rgba(78,205,196,.2)">
+              <div style="width:44px;height:44px;border-radius:12px;background:rgba(78,205,196,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--teal);flex-shrink:0">100</div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700">مانيكير مجاني · Manucure gratuite</div><div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif">100 نقطة — متاح الآن</div></div>
+              <button class="btn btn-sm btn-gold" onclick="showToast('تم تطبيق المانيكير المجاني')" style="font-size:11px">استخدم</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historique points -->
+        <div class="table-card">
+          <div class="table-header"><div class="chart-title">سجل النقاط · Historique</div></div>
+          <table>
+            <thead><tr><th>التاريخ</th><th>الخدمة</th><th>النقاط</th></tr></thead>
+            <tbody>
+              <tr><td style="font-family:'Sora',sans-serif;font-size:11px">20/02/2026</td><td>قص وصبغ</td><td><span style="color:var(--green);font-weight:700;font-family:'Sora',sans-serif">+85 pts</span></td></tr>
+              <tr><td style="font-family:'Sora',sans-serif;font-size:11px">05/02/2026</td><td>مانيكير</td><td><span style="color:var(--green);font-weight:700;font-family:'Sora',sans-serif">+30 pts</span></td></tr>
+              <tr><td style="font-family:'Sora',sans-serif;font-size:11px">18/01/2026</td><td>تصفيف</td><td><span style="color:var(--green);font-weight:700;font-family:'Sora',sans-serif">+25 pts</span></td></tr>
+              <tr><td style="font-family:'Sora',sans-serif;font-size:11px">15/01/2026</td><td>تخفيض 20%</td><td><span style="color:var(--red);font-weight:700;font-family:'Sora',sans-serif">-200 pts</span></td></tr>
+              <tr><td style="font-family:'Sora',sans-serif;font-size:11px">02/01/2026</td><td>تنظيف بشرة</td><td><span style="color:var(--green);font-weight:700;font-family:'Sora',sans-serif">+55 pts</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: CHATBOT CLIENT ── -->
+    <div id="client-tab-chatbot-c" style="display:none">
+      <div style="font-size:22px;font-weight:900;margin-bottom:6px">المساعد الذكي · Assistant IA</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:20px">اسألني عن الخدمات، المواعيد، أو أي شيء آخر</div>
+
+      <div style="display:grid;grid-template-columns:1fr 240px;gap:16px;height:480px">
+        <div style="display:flex;flex-direction:column;background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);overflow:hidden">
+          <div id="client-cb-messages" style="flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+            <div style="background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.03));border:1px solid rgba(201,168,76,.2);border-radius:16px;padding:20px 24px;text-align:center;max-width:460px;margin:0 auto">
+              <div style="font-size:14px;font-weight:900;margin-bottom:5px">مرحباً سارة — <span style="color:var(--gold)">لوميرا AI</span></div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.8;font-family:'Sora',sans-serif">كيف نقدر نساعدك اليوم؟<br>Comment puis-je vous aider ?</div>
+            </div>
+          </div>
+          <div style="padding:12px 16px;background:var(--dark2);border-top:1px solid rgba(255,255,255,.05);display:flex;gap:8px;align-items:flex-end">
+            <textarea id="client-cb-input" placeholder="اكتبي سؤالك... / Votre question..." rows="1"
+              style="flex:1;background:var(--dark3);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:10px 14px;color:var(--white);font-family:'Cairo',sans-serif;font-size:13px;resize:none;outline:none;max-height:80px"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();clientCbSend()}"
+              oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+            <button onclick="clientCbSend()" style="width:36px;height:36px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark);cursor:pointer;font-weight:700;font-size:16px;flex-shrink:0">&#10148;</button>
+          </div>
+        </div>
+
+        <!-- Quick questions -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:4px">أسئلة سريعة</div>
+          <div onclick="clientCbQuick('كيفاش نحجز موعد؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:12px;transition:all .2s" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)'">كيفاش نحجز موعد؟</div>
+          <div onclick="clientCbQuick('شنوا الخدمات المتاحة وأسعارها؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:12px;transition:all .2s" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)'">الخدمات والأسعار</div>
+          <div onclick="clientCbQuick('شنوا مواعيد عمل الصالون؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:12px;transition:all .2s" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)'">مواعيد العمل</div>
+          <div onclick="clientCbQuick('كيفاش نلغي موعد؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:12px;transition:all .2s" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)'">إلغاء موعد</div>
+          <div onclick="clientCbQuick('كيفاش نشوف نقاط الولاء متاعي؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:12px;transition:all .2s" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)'">نقاط الولاء</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end client content -->
+</div><!-- end page-client -->
+<div class="page app-shell" id="page-app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">L</div>
+      <div>
+        <div class="sidebar-logo-text">لوميرا</div>
+        <div class="sidebar-logo-sub">Lumiera · Salon</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">القائمة الرئيسية</div>
+      <div class="nav-item active" onclick="showSection('dashboard')">
+        <span class="nav-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif">HM</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showSection('bookings')">
+        <span class="nav-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif">RDV</span> الحجوزات
+        <span class="nav-badge">7</span>
+      </div>
+      <div class="nav-item" onclick="showSection('pos')">
+        <span class="nav-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif">POS</span> الكاسة · POS
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">الإدارة</div>
+      <div class="nav-item" onclick="showSection('clients')">
+        <span class="nav-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif">CLI</span> الزبائن
+      </div>
+      <div class="nav-item" onclick="showSection('employees')">
+        <span class="nav-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif">EMP</span> العمال
+      </div>
+      <div class="nav-item" onclick="showSection('stock')">
+        <span class="nav-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif">STK</span> المخزون
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">espace Client</div>
+      <div class="nav-item" onclick="showSection('client-rdv')">
+        <span class="nav-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif;color:var(--teal)">MRV</span>
+        <span>مواعيدي · Mes RDV</span>
+        <span class="nav-badge" style="background:var(--teal)">3</span>
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">التحليلات</div>
+      <div class="nav-item" onclick="showSection('reports')">
+        <span class="nav-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif">RPT</span> التقارير
+      </div>
+      <div class="nav-item" onclick="showSection('chatbot')">
+        <span class="nav-icon" style="font-size:13px;font-weight:700;font-family:'Sora',sans-serif">AI</span> مساعد AI
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar">أ</div>
+        <div>
+          <div class="user-name">أمينة بن علي</div>
+          <div class="user-role">Propriétaire · صاحبة الصالون</div>
+        </div>
+        <span class="logout-btn" onclick="navigate('login')" title="خروج" style="font-size:12px;font-family:Sora,sans-serif;font-weight:700">OFF</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content" id="main-content">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="section-dashboard">
+      <div class="top-nav">
+        <div>
+          <div class="top-nav-title">Dashboard <span>مارس 2026</span></div>
+        </div>
+        <div class="top-nav-actions">
+          <div class="icon-btn notif-dot" style="font-size:14px;font-family:'Sora',sans-serif;font-weight:700">N</div>
+          <div class="icon-btn" style="font-size:13px;font-family:'Sora',sans-serif;font-weight:700">Cfg</div>
+          <button class="btn btn-gold btn-sm" onclick="showToast('Rapport du jour prêt')">تصدير التقرير</button>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="font-size:13px;font-family:'Sora',sans-serif;font-weight:700;color:var(--teal)">RDV</div>
+            <div class="kpi-value" style="color:var(--teal)">124</div>
+            <div class="kpi-label">حجوزات اليوم · RDV aujourd'hui</div>
+            <div class="kpi-change up">↑ 12% من أمس</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="font-size:13px;font-family:'Sora',sans-serif;font-weight:700;color:var(--gold)">CA</div>
+            <div class="kpi-value" style="color:var(--gold)">18,450 <span style="font-size:16px">د.ت</span></div>
+            <div class="kpi-label">إيرادات اليوم · Revenus du jour</div>
+            <div class="kpi-change up">↑ 8% من أمس</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="font-size:13px;font-family:'Sora',sans-serif;font-weight:700;color:var(--rose)">CLI</div>
+            <div class="kpi-value" style="color:var(--rose)">312</div>
+            <div class="kpi-label">زبائن نشطون · Clients actifs</div>
+            <div class="kpi-change up">↑ 23 جديد هذا الأسبوع</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="font-size:13px;font-family:'Sora',sans-serif;font-weight:700;color:var(--green)">SAT</div>
+            <div class="kpi-value" style="color:var(--green)">96%</div>
+            <div class="kpi-label">رضا الزبائن · Satisfaction</div>
+            <div class="kpi-change up">↑ ممتاز</div>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-bottom:20px">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div><div class="chart-title">إيرادات الأسبوع</div><div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif">Revenus hebdomadaires</div></div>
+              <select style="background:var(--dark4);border:1px solid rgba(255,255,255,.08);color:var(--white);border-radius:8px;padding:5px 10px;font-family:'Cairo',sans-serif;font-size:12px">
+                <option>هذا الأسبوع</option><option>الشهر</option>
+              </select>
+            </div>
+            <div class="chart-bars">
+              <div class="chart-col"><div class="bar" style="height:45%"></div><div class="bar-label">إث</div></div>
+              <div class="chart-col"><div class="bar" style="height:68%"></div><div class="bar-label">ثل</div></div>
+              <div class="chart-col"><div class="bar" style="height:52%"></div><div class="bar-label">أر</div></div>
+              <div class="chart-col"><div class="bar" style="height:85%"></div><div class="bar-label">خم</div></div>
+              <div class="chart-col"><div class="bar" style="height:70%"></div><div class="bar-label">جم</div></div>
+              <div class="chart-col"><div class="bar" style="height:95%"></div><div class="bar-label">سب</div></div>
+              <div class="chart-col"><div class="bar" style="height:40%"></div><div class="bar-label">أح</div></div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-header">
+              <div class="chart-title">آخر الحجوزات</div>
+              <button class="btn btn-outline btn-sm" onclick="showSection('bookings')">عرض الكل</button>
+            </div>
+            <table>
+              <thead><tr><th>الزبون</th><th>الخدمة</th><th>الوقت</th><th>الحالة</th></tr></thead>
+              <tbody>
+                <tr><td>سارة المرزوقي</td><td>قص وصبغ</td><td>14:30</td><td><span class="badge badge-green">مؤكد</span></td></tr>
+                <tr><td>نورة بوعزيزي</td><td>مانيكير</td><td>15:00</td><td><span class="badge badge-gold">انتظار</span></td></tr>
+                <tr><td>ليلى الشابي</td><td>تصفيف</td><td>15:45</td><td><span class="badge badge-green">مؤكد</span></td></tr>
+                <tr><td>منى التريكي</td><td>بشرة</td><td>16:30</td><td><span class="badge badge-muted">ملغي</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="kpi-card"><div class="kpi-icon" style="font-size:11px;font-family:'Sora',sans-serif;font-weight:700;color:var(--gold)">TOP</div><div class="kpi-value" style="color:var(--gold);font-size:22px">قص وصبغ</div><div class="kpi-label">الخدمة الأكثر طلباً</div><div class="kpi-change up">43 مرة هذا الأسبوع</div></div>
+          <div class="kpi-card"><div class="kpi-icon" style="font-size:11px;font-family:'Sora',sans-serif;font-weight:700;color:var(--gold)">MVP</div><div class="kpi-value" style="color:var(--gold);font-size:22px">فاطمة</div><div class="kpi-label">العاملة الأفضل أداءً</div><div class="kpi-change up">↑ 28 حجز هذا الأسبوع</div></div>
+          <div class="kpi-card"><div class="kpi-icon" style="font-size:11px;font-family:'Sora',sans-serif;font-weight:700;color:var(--red)">STK</div><div class="kpi-value" style="color:var(--red);font-size:22px">3</div><div class="kpi-label">منتجات بمخزون منخفض</div><div class="kpi-change down">يلزم تجديد فوري</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOOKINGS ── -->
+    <div id="section-bookings" style="display:none">
+      <div class="top-nav">
+        <div><div class="top-nav-title">الحجوزات <span>Rendez-vous</span></div></div>
+        <div class="top-nav-actions">
+          <button class="btn btn-gold btn-sm" onclick="openModal('modal-add-booking')">+ حجز جديد</button>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--teal);font-size:24px">124</div><div class="kpi-label">إجمالي اليوم</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--green);font-size:24px">98</div><div class="kpi-label">مؤكدة</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--gold);font-size:24px">18</div><div class="kpi-label">في الانتظار</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--red);font-size:24px">8</div><div class="kpi-label">ملغاة</div></div>
+        </div>
+
+        <div class="cal-grid">
+          <div class="table-card">
+            <div class="table-header">
+              <div class="chart-title">مواعيد اليوم — الأربعاء 1 مارس 2026</div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-outline btn-sm">◀ أمس</button>
+                <button class="btn btn-outline btn-sm">اليوم ▶</button>
+              </div>
+            </div>
+            <div style="padding:12px">
+              <div class="time-slots">
+                <div class="time-slot booked"><div class="slot-time">09:00</div><div class="slot-info"><div class="slot-name">سارة المرزوقي</div><div class="slot-service">قص وصبغ · فاطمة · 90 د</div></div><span class="badge badge-green">مؤكد</span><button class="btn btn-sm btn-outline" style="margin-inline-start:8px">تفاصيل</button></div>
+                <div class="time-slot booked"><div class="slot-time">10:30</div><div class="slot-info"><div class="slot-name">نورة بوعزيزي</div><div class="slot-service">مانيكير · ريم · 45 د</div></div><span class="badge badge-gold">انتظار</span><button class="btn btn-sm btn-outline" style="margin-inline-start:8px">تأكيد</button></div>
+                <div class="time-slot free"><div class="slot-time">11:30</div><div class="slot-info"><div class="slot-name" style="color:var(--green)">متاح · Disponible</div><div class="slot-service">لا يوجد حجز</div></div><button class="btn btn-sm btn-gold" onclick="openModal('modal-add-booking')">+ احجز</button></div>
+                <div class="time-slot booked"><div class="slot-time">13:00</div><div class="slot-info"><div class="slot-name">ليلى الشابي</div><div class="slot-service">تصفيف · سلمى · 60 د</div></div><span class="badge badge-green">مؤكد</span><button class="btn btn-sm btn-outline" style="margin-inline-start:8px">تفاصيل</button></div>
+                <div class="time-slot booked"><div class="slot-time">14:30</div><div class="slot-info"><div class="slot-name">منى التريكي</div><div class="slot-service">بشرة · فاطمة · 75 د</div></div><span class="badge badge-red">ملغي</span><button class="btn btn-sm btn-outline" style="margin-inline-start:8px">إعادة جدولة</button></div>
+                <div class="time-slot free"><div class="slot-time">16:00</div><div class="slot-info"><div class="slot-name" style="color:var(--green)">متاح · Disponible</div><div class="slot-service">لا يوجد حجز</div></div><button class="btn btn-sm btn-gold" onclick="openModal('modal-add-booking')">+ احجز</button></div>
+                <div class="time-slot booked"><div class="slot-time">17:00</div><div class="slot-info"><div class="slot-name">رانيا الجلاصي</div><div class="slot-service">قص · ريم · 30 د</div></div><span class="badge badge-green">مؤكد</span><button class="btn btn-sm btn-outline" style="margin-inline-start:8px">تفاصيل</button></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-header"><div class="chart-title">إحصائيات سريعة</div></div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
+              <div style="background:var(--dark4);border-radius:10px;padding:14px">
+                <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:8px">أكثر الخدمات طلباً</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;align-items:center;gap:10px"><span style="flex:1;font-size:13px">قص وصبغ</span><div class="progress-bar" style="flex:2"><div class="progress-fill" style="width:85%;background:var(--gold)"></div></div><span style="font-size:12px;color:var(--gold);font-family:'Sora',sans-serif;width:30px;text-align:left">43</span></div>
+                  <div style="display:flex;align-items:center;gap:10px"><span style="flex:1;font-size:13px">مانيكير</span><div class="progress-bar" style="flex:2"><div class="progress-fill" style="width:60%;background:var(--teal)"></div></div><span style="font-size:12px;color:var(--teal);font-family:'Sora',sans-serif;width:30px;text-align:left">31</span></div>
+                  <div style="display:flex;align-items:center;gap:10px"><span style="flex:1;font-size:13px">تصفيف</span><div class="progress-bar" style="flex:2"><div class="progress-fill" style="width:45%;background:var(--rose)"></div></div><span style="font-size:12px;color:var(--rose);font-family:'Sora',sans-serif;width:30px;text-align:left">23</span></div>
+                </div>
+              </div>
+              <div style="background:var(--dark4);border-radius:10px;padding:14px">
+                <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:10px">نسبة الحضور</div>
+                <div style="font-size:36px;font-weight:900;color:var(--green)">87%</div>
+                <div style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">من أصل 124 موعد اليوم</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CLIENTS ── -->
+    <div id="section-clients" style="display:none">
+      <div class="top-nav">
+        <div><div class="top-nav-title">الزبائن <span>Clients</span></div></div>
+        <div class="top-nav-actions">
+          <div class="search-bar" style="width:220px"><span style="font-size:11px;color:var(--muted)">&#128269;</span><input placeholder="بحث عن زبون..."></div>
+          <button class="btn btn-gold btn-sm">+ زبون جديد</button>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--teal);font-size:24px">312</div><div class="kpi-label">إجمالي الزبائن</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--green);font-size:24px">+23</div><div class="kpi-label">جدد هذا الشهر</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--gold);font-size:24px">78%</div><div class="kpi-label">نسبة العودة</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--rose);font-size:24px">59.3 <span style="font-size:14px">د.ت</span></div><div class="kpi-label">متوسط الإنفاق</div></div>
+        </div>
+        <div class="table-card">
+          <div class="table-header"><div class="chart-title">قائمة الزبائن</div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm">تصفية</button><button class="btn btn-outline btn-sm">تصدير CSV</button></div></div>
+          <table>
+            <thead><tr><th>الاسم</th><th>الهاتف</th><th>آخر زيارة</th><th>عدد الزيارات</th><th>نقاط الولاء</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="clients-tbody">
+              <tr><td><div style="font-weight:600">سارة المرزوقي</div><div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="acdfcddecdecc9c1cdc5c082cfc3c1">[email&#160;protected]</a></div></td><td style="font-family:'Sora',sans-serif">+216 22 111 222</td><td>01/03/2026</td><td>24</td><td><span style="color:var(--gold);font-weight:700">480 pts</span></td><td><span class="badge badge-green">نشيط</span></td><td><button class="btn btn-sm btn-outline" onclick="showToast('Fiche Sara Marzougui')">عرض</button></td></tr>
+              <tr><td><div style="font-weight:600">نورة بوعزيزي</div><div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cfa1a0babdae8faaa2aea6a3e1aca0a2">[email&#160;protected]</a></div></td><td style="font-family:'Sora',sans-serif">+216 25 333 444</td><td>28/02/2026</td><td>17</td><td><span style="color:var(--gold);font-weight:700">340 pts</span></td><td><span class="badge badge-green">نشيط</span></td><td><button class="btn btn-sm btn-outline">عرض</button></td></tr>
+              <tr><td><div style="font-weight:600">ليلى الشابي</div><div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="167a737f7a7756737b777f7a3875797b">[email&#160;protected]</a></div></td><td style="font-family:'Sora',sans-serif">+216 29 555 666</td><td>25/02/2026</td><td>8</td><td><span style="color:var(--gold);font-weight:700">160 pts</span></td><td><span class="badge badge-gold">جديد</span></td><td><button class="btn btn-sm btn-outline">عرض</button></td></tr>
+              <tr><td><div style="font-weight:600">منى التريكي</div><div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e984868788a98c84888085c78a8684">[email&#160;protected]</a></div></td><td style="font-family:'Sora',sans-serif">+216 21 777 888</td><td>10/02/2026</td><td>3</td><td><span style="color:var(--gold);font-weight:700">60 pts</span></td><td><span class="badge badge-muted">غير نشيط</span></td><td><button class="btn btn-sm btn-outline">عرض</button></td></tr>
+              <tr><td><div style="font-weight:600">رانيا الجلاصي</div><div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5e2c3f30373f1e3b333f3732703d3133">[email&#160;protected]</a></div></td><td style="font-family:'Sora',sans-serif">+216 27 999 000</td><td>01/03/2026</td><td>31</td><td><span style="color:var(--gold);font-weight:700">620 pts</span></td><td><span class="badge badge-green">نشيط</span></td><td><button class="btn btn-sm btn-outline">عرض</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EMPLOYEES ── -->
+    <div id="section-employees" style="display:none">
+      <div class="top-nav">
+        <div><div class="top-nav-title">العمال <span>Employés</span></div></div>
+        <div class="top-nav-actions">
+          <button class="btn btn-gold btn-sm" onclick="openModal('modal-add-emp')">+ عامل جديد</button>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--teal);font-size:24px">6</div><div class="kpi-label">إجمالي العمال</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--green);font-size:24px">5</div><div class="kpi-label">متاحون اليوم</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--gold);font-size:24px">1,240 <span style="font-size:14px">د.ت</span></div><div class="kpi-label">إجمالي العمولات / شهر</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--rose);font-size:24px">94%</div><div class="kpi-label">معدل الحضور</div></div>
+        </div>
+        <div class="grid3">
+          <div class="emp-card"><div class="emp-avatar" style="background:linear-gradient(135deg,#E8748A,#C9A84C)">ف</div><div class="emp-name">فاطمة الزيدي</div><div class="emp-role">Coiffeuse Senior · كوافيرة</div><div style="margin-bottom:10px"><span class="badge badge-green">متاحة</span></div><div class="emp-stats"><div><div class="emp-stat-val">28</div><div class="emp-stat-lbl">حجز الأسبوع</div></div><div><div class="emp-stat-val">94%</div><div class="emp-stat-lbl">رضا</div></div><div><div class="emp-stat-val">310<span style="font-size:10px">د.ت</span></div><div class="emp-stat-lbl">عمولة</div></div></div><div style="margin-top:14px;display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1">الجدول</button><button class="btn btn-gold btn-sm" style="flex:1">تفاصيل</button></div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:linear-gradient(135deg,#4ECDC4,#3B82F6)">ر</div><div class="emp-name">ريم بن سالم</div><div class="emp-role">Esthéticienne · خبيرة تجميل</div><div style="margin-bottom:10px"><span class="badge badge-green">متاحة</span></div><div class="emp-stats"><div><div class="emp-stat-val">22</div><div class="emp-stat-lbl">حجز الأسبوع</div></div><div><div class="emp-stat-val">97%</div><div class="emp-stat-lbl">رضا</div></div><div><div class="emp-stat-val">250<span style="font-size:10px">د.ت</span></div><div class="emp-stat-lbl">عمولة</div></div></div><div style="margin-top:14px;display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1">الجدول</button><button class="btn btn-gold btn-sm" style="flex:1">تفاصيل</button></div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:linear-gradient(135deg,#22C55E,#4ECDC4)">س</div><div class="emp-name">سلمى الخميري</div><div class="emp-role">Manucure · مانيكير</div><div style="margin-bottom:10px"><span class="badge badge-gold">في إجازة</span></div><div class="emp-stats"><div><div class="emp-stat-val">15</div><div class="emp-stat-lbl">حجز الأسبوع</div></div><div><div class="emp-stat-val">91%</div><div class="emp-stat-lbl">رضا</div></div><div><div class="emp-stat-val">180<span style="font-size:10px">د.ت</span></div><div class="emp-stat-lbl">عمولة</div></div></div><div style="margin-top:14px;display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1">الجدول</button><button class="btn btn-gold btn-sm" style="flex:1">تفاصيل</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STOCK ── -->
+    <div id="section-stock" style="display:none">
+      <div class="top-nav">
+        <div><div class="top-nav-title">المخزون <span>Stocks</span></div></div>
+        <div class="top-nav-actions">
+          <button class="btn btn-gold btn-sm">+ منتج جديد</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Commande envoyée au fournisseur')">طلب تجديد</button>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--teal);font-size:24px">48</div><div class="kpi-label">إجمالي المنتجات</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--red);font-size:24px">3</div><div class="kpi-label">مخزون منخفض !</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--gold);font-size:24px">2,340 <span style="font-size:14px">د.ت</span></div><div class="kpi-label">قيمة المخزون</div></div>
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--green);font-size:24px">45</div><div class="kpi-label">منتجات متوفرة</div></div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header"><div class="chart-title">قائمة المنتجات</div><div class="search-bar" style="width:200px"><span style="font-size:11px;color:var(--muted)">&#128269;</span><input placeholder="بحث..."></div></div>
+          <div>
+            <div class="stock-row"><div class="stock-icon" style="background:rgba(201,168,76,.1)"><span style="font-size:16px;font-family:Sora,sans-serif;font-weight:700;color:var(--gold)">SH</span></div><div><div class="stock-name">شامبو L'Oréal Professionnel</div><div class="stock-sub">Soins cheveux · 500ml</div></div><div style="flex:1;padding:0 20px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">18 / 50</span><span style="font-size:12px;color:var(--green);font-family:'Sora',sans-serif">OK</span></div><div class="progress-bar"><div class="progress-fill" style="width:36%;background:var(--green)"></div></div></div><span class="badge badge-green">متوفر</span></div>
+            <div class="stock-row"><div class="stock-icon" style="background:rgba(232,116,138,.1)"><span style="font-size:16px;font-family:Sora,sans-serif;font-weight:700;color:var(--rose)">NL</span></div><div><div class="stock-name">طلاء أظافر OPI</div><div class="stock-sub">Vernis · Collection 2026</div></div><div style="flex:1;padding:0 20px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">4 / 30</span><span style="font-size:12px;color:var(--red);font-family:'Sora',sans-serif">منخفض!</span></div><div class="progress-bar"><div class="progress-fill" style="width:13%;background:var(--red)"></div></div></div><span class="badge badge-red">منخفض</span></div>
+            <div class="stock-row"><div class="stock-icon" style="background:rgba(59,130,246,.1)"><span style="font-size:16px;font-family:Sora,sans-serif;font-weight:700;color:var(--teal)">CR</span></div><div><div class="stock-name">كريم علاج البشرة</div><div class="stock-sub">Soin visage · 200ml</div></div><div style="flex:1;padding:0 20px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">25 / 40</span><span style="font-size:12px;color:var(--green);font-family:'Sora',sans-serif">OK</span></div><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--green)"></div></div></div><span class="badge badge-green">متوفر</span></div>
+            <div class="stock-row"><div class="stock-icon" style="background:rgba(34,197,94,.1)"><span style="font-size:16px;font-family:Sora,sans-serif;font-weight:700;color:var(--muted2)">AC</span></div><div><div class="stock-name">مستلزمات الحلاقة</div><div class="stock-sub">Accessoires · Kit complet</div></div><div style="flex:1;padding:0 20px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">2 / 20</span><span style="font-size:12px;color:var(--red);font-family:'Sora',sans-serif">منخفض!</span></div><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--red)"></div></div></div><span class="badge badge-red">منخفض</span></div>
+            <div class="stock-row"><div class="stock-icon" style="background:rgba(201,168,76,.1)"><span style="font-size:16px;font-family:Sora,sans-serif;font-weight:700;color:var(--blue)">DY</span></div><div><div class="stock-name">صبغة شعر Wella</div><div class="stock-sub">Coloration · Gamme complète</div></div><div style="flex:1;padding:0 20px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">12 / 25</span><span style="font-size:12px;color:var(--gold);font-family:'Sora',sans-serif">متوسط</span></div><div class="progress-bar"><div class="progress-fill" style="width:48%;background:var(--gold)"></div></div></div><span class="badge badge-gold">متوسط</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REPORTS ── -->
+    <div id="section-reports" style="display:none">
+      <div class="top-nav">
+        <div><div class="top-nav-title">التقارير <span>Rapports</span></div></div>
+        <div class="top-nav-actions">
+          <select style="background:var(--dark3);border:1px solid rgba(255,255,255,.08);color:var(--white);border-radius:10px;padding:8px 14px;font-family:'Cairo',sans-serif;font-size:13px">
+            <option>مارس 2026</option><option>فبراير 2026</option><option>يناير 2026</option>
+          </select>
+          <button class="btn btn-gold btn-sm" onclick="showToast('Export PDF en cours...')">تصدير PDF</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Export Excel en cours...')">Excel</button>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="kpi-grid" style="margin-bottom:24px">
+          <div class="kpi-card"><div class="kpi-icon" style="font-size:12px;font-weight:700;font-family:Sora,sans-serif;color:var(--gold)">CA</div><div class="kpi-value" style="color:var(--gold)">38,450 <span style="font-size:16px">د.ت</span></div><div class="kpi-label">إيرادات الشهر</div><div class="kpi-change up">↑ 14% من الشهر الماضي</div></div>
+          <div class="kpi-card"><div class="kpi-icon" style="font-size:12px;font-weight:700;font-family:Sora,sans-serif;color:var(--teal)">RDV</div><div class="kpi-value" style="color:var(--teal)">847</div><div class="kpi-label">إجمالي الحجوزات</div><div class="kpi-change up">↑ 9% من الشهر الماضي</div></div>
+          <div class="kpi-card"><div class="kpi-icon" style="font-size:12px;font-weight:700;font-family:Sora,sans-serif;color:var(--rose)">CLI</div><div class="kpi-value" style="color:var(--rose)">45.4 <span style="font-size:16px">د.ت</span></div><div class="kpi-label">متوسط قيمة الزيارة</div><div class="kpi-change up">↑ 5%</div></div>
+          <div class="kpi-card"><div class="kpi-icon" style="font-size:12px;font-weight:700;font-family:Sora,sans-serif;color:var(--green)">COM</div><div class="kpi-value" style="color:var(--green)">1,240 <span style="font-size:16px">د.ت</span></div><div class="kpi-label">إجمالي العمولات</div><div class="kpi-change up">↑ 8%</div></div>
+        </div>
+
+        <div class="grid2" style="margin-bottom:20px">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">الإيرادات الشهرية · Revenus mensuels</div></div>
+            <div class="chart-bars" style="height:160px">
+              <div class="chart-col"><div class="bar" style="height:55%"></div><div class="bar-label">سب</div></div>
+              <div class="chart-col"><div class="bar" style="height:62%"></div><div class="bar-label">أك</div></div>
+              <div class="chart-col"><div class="bar" style="height:48%"></div><div class="bar-label">نو</div></div>
+              <div class="chart-col"><div class="bar" style="height:70%"></div><div class="bar-label">دي</div></div>
+              <div class="chart-col"><div class="bar" style="height:58%"></div><div class="bar-label">يا</div></div>
+              <div class="chart-col"><div class="bar" style="height:75%"></div><div class="bar-label">فب</div></div>
+              <div class="chart-col"><div class="bar" style="height:92%;background:linear-gradient(180deg,var(--teal) 0%,var(--gold) 100%)"></div><div class="bar-label" style="color:var(--teal)">مار</div></div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">توزيع الخدمات · Répartition services</div></div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px">قص وصبغ</span><span style="font-size:13px;font-weight:700;color:var(--gold);font-family:'Sora',sans-serif">42%</span></div><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:42%;background:var(--gold)"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px">مانيكير / باديكير</span><span style="font-size:13px;font-weight:700;color:var(--teal);font-family:'Sora',sans-serif">28%</span></div><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:28%;background:var(--teal)"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px">بشرة وتجميل</span><span style="font-size:13px;font-weight:700;color:var(--rose);font-family:'Sora',sans-serif">18%</span></div><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:18%;background:var(--rose)"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px">خدمات أخرى</span><span style="font-size:13px;font-weight:700;color:var(--muted2);font-family:'Sora',sans-serif">12%</span></div><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:12%;background:var(--muted)"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header"><div class="chart-title">أداء العمال هذا الشهر</div></div>
+          <table>
+            <thead><tr><th>العاملة</th><th>عدد الخدمات</th><th>الإيرادات</th><th>العمولة</th><th>رضا الزبائن</th></tr></thead>
+            <tbody>
+              <tr><td><b>فاطمة الزيدي</b></td><td>112</td><td><span style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">5,240 د.ت</span></td><td>524 د.ت</td><td><span class="badge badge-green">4.9/5</span></td></tr>
+              <tr><td><b>ريم بن سالم</b></td><td>94</td><td><span style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">4,100 د.ت</span></td><td>410 د.ت</td><td><span class="badge badge-green">4.8/5</span></td></tr>
+              <tr><td><b>سلمى الخميري</b></td><td>67</td><td><span style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">2,800 د.ت</span></td><td>280 د.ت</td><td><span class="badge badge-gold">4.6/5</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── POS ── -->
+    <div id="section-pos" style="display:none">
+      <div class="top-nav">
+        <div><div class="top-nav-title">الكاسة · POS <span>Point de Vente</span></div></div>
+        <div class="top-nav-actions">
+          <div class="icon-btn" onclick="showToast('Dernière transaction: 89.5 د.ت')" style="font-size:12px;font-family:Sora,sans-serif;font-weight:700">Hist</div>
+        </div>
+      </div>
+      <div style="padding:16px">
+        <div class="pos-layout">
+          <div class="pos-services">
+            <div style="margin-bottom:14px">
+              <div style="font-size:15px;font-weight:800;margin-bottom:10px">اختر الخدمات · Choisir services</div>
+              <div class="search-bar"><span style="font-size:11px;color:var(--muted)">Q</span><input placeholder="بحث عن خدمة..." oninput="filterServices(this.value)"></div>
+            </div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:10px">الشعر · Cheveux</div>
+            <div class="service-grid" id="service-grid">
+              <div class="service-item" onclick="addToCart(this,'قص شعر','Coupe',35,30)"><div class="service-name">قص شعر</div><div style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">Coupe</div><div class="service-price">35 <span style="font-size:10px">د.ت</span></div><div class="service-dur">30 دقيقة</div></div>
+              <div class="service-item" onclick="addToCart(this,'قص وصبغ','Coupe+Couleur',85,90)"><div class="service-name">قص وصبغ</div><div style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">Coupe+Couleur</div><div class="service-price">85 <span style="font-size:10px">د.ت</span></div><div class="service-dur">90 دقيقة</div></div>
+              <div class="service-item" onclick="addToCart(this,'تصفيف','Brushing',25,30)"><div class="service-name">تصفيف</div><div style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">Brushing</div><div class="service-price">25 <span style="font-size:10px">د.ت</span></div><div class="service-dur">30 دقيقة</div></div>
+              <div class="service-item" onclick="addToCart(this,'علاج شعر','Soin',45,45)"><div class="service-name">علاج شعر</div><div style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">Soin cheveux</div><div class="service-price">45 <span style="font-size:10px">د.ت</span></div><div class="service-dur">45 دقيقة</div></div>
+            </div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'Sora',sans-serif;margin:14px 0 10px">التجميل · Esthétique</div>
+            <div class="service-grid">
+              <div class="service-item" onclick="addToCart(this,'مانيكير','Manucure',30,45)"><div class="service-name">مانيكير</div><div style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">Manucure</div><div class="service-price">30 <span style="font-size:10px">د.ت</span></div><div class="service-dur">45 دقيقة</div></div>
+              <div class="service-item" onclick="addToCart(this,'باديكير','Pédicure',35,50)"><div class="service-name">باديكير</div><div style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">Pédicure</div><div class="service-price">35 <span style="font-size:10px">د.ت</span></div><div class="service-dur">50 دقيقة</div></div>
+              <div class="service-item" onclick="addToCart(this,'تنظيف بشرة','Soin visage',55,60)"><div class="service-name">تنظيف بشرة</div><div style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">Soin visage</div><div class="service-price">55 <span style="font-size:10px">د.ت</span></div><div class="service-dur">60 دقيقة</div></div>
+              <div class="service-item" onclick="addToCart(this,'ميكاج','Maquillage',60,60)"><div class="service-name">ميكاج</div><div style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">Maquillage</div><div class="service-price">60 <span style="font-size:10px">د.ت</span></div><div class="service-dur">60 دقيقة</div></div>
+            </div>
+          </div>
+
+          <div class="pos-cart">
+            <div class="cart-header">الفاتورة · Facture</div>
+            <div class="cart-items" id="cart-items">
+              <div id="cart-empty" style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;font-family:'Sora',sans-serif">
+                اختر خدمة من اليسار<br>Sélectionnez un service
+              </div>
+            </div>
+            <div class="cart-footer">
+              <div class="cart-total-row">
+                <div><div class="cart-total-label">المجموع · Total</div></div>
+                <div class="cart-total-val" id="cart-total">0.00 <span style="font-size:14px">د.ت</span></div>
+              </div>
+
+              <div style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:8px">طريقة الدفع · Mode de paiement</div>
+              <div class="pay-methods">
+                <div class="pay-method active" onclick="selectPay(this)">كاش</div>
+                <div class="pay-method" onclick="selectPay(this)">بطاقة</div>
+                <div class="pay-method" onclick="selectPay(this)">رقمي</div>
+              </div>
+              <button class="btn btn-full" style="border-radius:12px" onclick="checkout()">Valider · تأكيد الدفع</button>
+              <button class="btn btn-outline" style="width:100%;margin-top:8px;border-radius:12px;font-size:13px" onclick="clearCart()">Annuler · إلغاء</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHATBOT ── -->
+    <div id="section-chatbot" style="display:none;height:calc(100vh - 0px);flex-direction:column">
+      <div class="top-nav">
+        <div><div class="top-nav-title">المساعد الذكي <span>Assistant IA — Claude</span></div></div>
+        <div class="top-nav-actions">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite"></div>
+            Claude AI — En ligne
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="clearChatbot()">Nouvelle conversation</button>
+        </div>
+      </div>
+      <div style="display:flex;flex:1;overflow:hidden">
+        <!-- Sidebar quick actions -->
+        <div style="width:220px;flex-shrink:0;background:var(--dark2);border-left:1px solid rgba(255,255,255,.05);padding:16px 12px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:6px">Mode</div>
+          <div style="display:flex;gap:6px;margin-bottom:10px">
+            <button id="cb-btn-owner" class="btn btn-gold btn-sm" style="flex:1;font-size:11px" onclick="setChatMode('owner')">Salon</button>
+            <button id="cb-btn-client" class="btn btn-outline btn-sm" style="flex:1;font-size:11px" onclick="setChatMode('client')">Client</button>
+          </div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:6px">Questions rapides</div>
+          <div id="cb-quick-owner" style="display:flex;flex-direction:column;gap:6px">
+            <div onclick="cbSendQuick('كيفاش نشوف تقرير إيرادات الشهر؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;cursor:pointer;transition:all .2s;font-size:12px" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.05)'">تقرير الإيرادات</div>
+            <div onclick="cbSendQuick('كيفاش نضيف عامل جديد في المنصة؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;cursor:pointer;transition:all .2s;font-size:12px" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.05)'">إضافة عامل</div>
+            <div onclick="cbSendQuick('كيفاش نعمل عرض خاص للزبائن؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;cursor:pointer;transition:all .2s;font-size:12px" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.05)'">عرض تسويقي</div>
+            <div onclick="cbSendQuick('المخزون وصل للحد الأدنى، شنوا نعمل؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;cursor:pointer;transition:all .2s;font-size:12px" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.05)'">تنبيه مخزون</div>
+            <div onclick="cbSendQuick('كيفاش نحسب عمولات العمال؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;cursor:pointer;transition:all .2s;font-size:12px" onmouseover="this.style.borderColor='rgba(201,168,76,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.05)'">حساب عمولات</div>
+          </div>
+          <div id="cb-quick-client" style="display:none;flex-direction:column;gap:6px">
+            <div onclick="cbSendQuick('كيفاش نحجز موعد في الصالون؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;cursor:pointer;font-size:12px">حجز موعد</div>
+            <div onclick="cbSendQuick('شنوا الخدمات المتاحة وأسعارها؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;cursor:pointer;font-size:12px">الخدمات والأسعار</div>
+            <div onclick="cbSendQuick('كيفاش نشوف نقاط الولاء متاعي؟')" style="background:var(--dark3);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;cursor:pointer;font-size:12px">نقاط الولاء</div>
+          </div>
+        </div>
+
+        <!-- Chat area -->
+        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+          <!-- Messages -->
+          <div id="cb-messages" style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth">
+            <div id="cb-welcome" style="background:linear-gradient(135deg,rgba(201,168,76,.1) 0%,rgba(201,168,76,.03) 100%);border:1px solid rgba(201,168,76,.2);border-radius:18px;padding:24px 28px;max-width:520px;margin:0 auto;text-align:center">
+              <div style="font-size:15px;font-weight:900;margin-bottom:6px">مرحباً — <span style="color:var(--gold)">لوميرا AI</span></div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.8;font-family:'Sora',sans-serif">Assistant intelligent de gestion de salon.<br>Je parle arabe tunisien et français.</div>
+            </div>
+          </div>
+          <!-- Input -->
+          <div style="padding:14px 20px;background:var(--dark2);border-top:1px solid rgba(255,255,255,.05)">
+            <div style="display:flex;gap:10px;align-items:flex-end;background:var(--dark3);border:1px solid rgba(201,168,76,.2);border-radius:14px;padding:10px 14px">
+              <textarea id="cb-input" placeholder="اكتب سؤالك... / Écrivez votre question..." rows="1"
+                style="flex:1;background:transparent;border:none;outline:none;color:var(--white);font-family:'Cairo',sans-serif;font-size:13px;resize:none;max-height:100px;line-height:1.6"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();cbSend()}"
+                oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+              <button onclick="cbSend()" id="cb-send" style="width:36px;height:36px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:700;transition:all .2s;flex-shrink:0" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">&#10148;</button>
+            </div>
+            <div style="text-align:center;font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:7px">Claude AI — Lumiera · Tunisie</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CLIENT RDV ── -->
+    <div id="section-client-rdv" style="display:none">
+      <div class="top-nav">
+        <div>
+          <div class="top-nav-title">مواعيدي <span>Gestion de mes Rendez-vous</span></div>
+        </div>
+        <div class="top-nav-actions">
+          <button class="btn btn-gold btn-sm" onclick="openModal('modal-client-rdv')">+ حجز موعد جديد · Nouveau RDV</button>
+        </div>
+      </div>
+
+      <div class="page-content">
+
+        <!-- KPIs client -->
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif;color:var(--teal)">Total</div>
+            <div class="kpi-value" style="color:var(--teal)">12</div>
+            <div class="kpi-label">مجموع المواعيد · Total RDV</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif;color:var(--green)">OK</div>
+            <div class="kpi-value" style="color:var(--green)">3</div>
+            <div class="kpi-label">مواعيد قادمة · A venir</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif;color:var(--gold)">PTS</div>
+            <div class="kpi-value" style="color:var(--gold)">480</div>
+            <div class="kpi-label">نقاط الولاء · Points fidélité</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="font-size:11px;font-weight:700;font-family:Sora,sans-serif;color:var(--rose)">Hist</div>
+            <div class="kpi-value" style="color:var(--rose)">9</div>
+            <div class="kpi-label">زيارات سابقة · Historique</div>
+          </div>
+        </div>
+
+        <div class="grid2" style="gap:16px;margin-bottom:20px">
+
+          <!-- Prochains RDV -->
+          <div class="table-card">
+            <div class="table-header">
+              <div>
+                <div class="chart-title">المواعيد القادمة · Prochains rendez-vous</div>
+                <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">مارس 2026</div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="openModal('modal-client-rdv')">+ جديد</button>
+            </div>
+            <div style="padding:10px 0">
+              <!-- RDV 1 - confirmed -->
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background='transparent'">
+                <div style="width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,rgba(78,205,196,.2),rgba(78,205,196,.05));border:1px solid rgba(78,205,196,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                  <div style="font-size:16px;font-weight:900;color:var(--teal);font-family:'Sora',sans-serif;line-height:1">05</div>
+                  <div style="font-size:9px;color:var(--muted);font-family:'Sora',sans-serif">MAR</div>
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:700">قص وصبغ · Coupe &amp; Couleur</div>
+                  <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">14:30 · فاطمة الزيدي · 90 min</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                  <span class="badge badge-green">مؤكد · Confirmé</span>
+                  <button class="btn btn-sm btn-red" onclick="openModal('modal-cancel-rdv')">إلغاء</button>
+                </div>
+              </div>
+
+              <!-- RDV 2 - pending -->
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background='transparent'">
+                <div style="width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                  <div style="font-size:16px;font-weight:900;color:var(--gold);font-family:'Sora',sans-serif;line-height:1">12</div>
+                  <div style="font-size:9px;color:var(--muted);font-family:'Sora',sans-serif">MAR</div>
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:700">مانيكير · Manucure</div>
+                  <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">11:00 · ريم بن سالم · 45 min</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                  <span class="badge badge-gold">انتظار · En attente</span>
+                  <button class="btn btn-sm btn-outline" onclick="openModal('modal-edit-rdv')">تعديل</button>
+                </div>
+              </div>
+
+              <!-- RDV 3 -->
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background='transparent'">
+                <div style="width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,rgba(232,116,138,.2),rgba(232,116,138,.05));border:1px solid rgba(232,116,138,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                  <div style="font-size:16px;font-weight:900;color:var(--rose);font-family:'Sora',sans-serif;line-height:1">20</div>
+                  <div style="font-size:9px;color:var(--muted);font-family:'Sora',sans-serif">MAR</div>
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:700">تنظيف بشرة · Soin visage</div>
+                  <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">10:00 · ريم بن سالم · 60 min</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                  <span class="badge badge-green">مؤكد · Confirmé</span>
+                  <button class="btn btn-sm btn-red" onclick="openModal('modal-cancel-rdv')">إلغاء</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Historique + Fidélité -->
+          <div style="display:flex;flex-direction:column;gap:16px">
+
+            <!-- Carte fidélité -->
+            <div style="background:linear-gradient(135deg,rgba(201,168,76,.18) 0%,rgba(201,168,76,.05) 100%);border:1px solid rgba(201,168,76,.35);border-radius:var(--radius);padding:22px 24px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--gold)">برنامج الولاء · Programme Fidélité</div>
+                  <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:2px">سارة المرزوقي · Membre Gold</div>
+                </div>
+                <div style="background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark);padding:6px 14px;border-radius:20px;font-size:11px;font-weight:800;font-family:'Sora',sans-serif">GOLD</div>
+              </div>
+              <div style="margin-bottom:10px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">480 / 500 pts pour le prochain cadeau</span>
+                  <span style="font-size:12px;font-weight:700;color:var(--gold);font-family:'Sora',sans-serif">96%</span>
+                </div>
+                <div class="progress-bar" style="height:8px">
+                  <div class="progress-fill" style="width:96%;background:linear-gradient(90deg,var(--gold),var(--gold-l))"></div>
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif">نقاط تكسبها: 10 pts / كل 1 د.ت</div>
+            </div>
+
+            <!-- Historique -->
+            <div class="table-card" style="flex:1">
+              <div class="table-header">
+                <div class="chart-title">آخر الزيارات · Historique</div>
+                <span class="badge badge-muted">9 visites</span>
+              </div>
+              <table>
+                <thead><tr><th>التاريخ</th><th>الخدمة</th><th>السعر</th><th>الحالة</th></tr></thead>
+                <tbody>
+                  <tr><td style="font-family:'Sora',sans-serif;font-size:12px">20/02/2026</td><td>قص وصبغ</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">85 د.ت</td><td><span class="badge badge-green">مكتمل</span></td></tr>
+                  <tr><td style="font-family:'Sora',sans-serif;font-size:12px">05/02/2026</td><td>مانيكير</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">30 د.ت</td><td><span class="badge badge-green">مكتمل</span></td></tr>
+                  <tr><td style="font-family:'Sora',sans-serif;font-size:12px">18/01/2026</td><td>تصفيف</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">25 د.ت</td><td><span class="badge badge-green">مكتمل</span></td></tr>
+                  <tr><td style="font-family:'Sora',sans-serif;font-size:12px">02/01/2026</td><td>تنظيف بشرة</td><td style="color:var(--gold);font-weight:700;font-family:'Sora',sans-serif">55 د.ت</td><td><span class="badge badge-muted">ملغي</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disponibilités du salon -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">الأوقات المتاحة · Créneaux disponibles</div>
+              <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:2px">اختر وقتك المناسب للحجز</div>
+            </div>
+            <input type="date" value="2026-03-05" class="form-input" style="width:auto;padding:8px 14px">
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:4px" id="slots-grid">
+            <div onclick="selectSlot(this)" class="slot-chip available">09:00</div>
+            <div onclick="selectSlot(this)" class="slot-chip taken">10:00</div>
+            <div onclick="selectSlot(this)" class="slot-chip available">10:30</div>
+            <div onclick="selectSlot(this)" class="slot-chip taken">11:30</div>
+            <div onclick="selectSlot(this)" class="slot-chip available">13:00</div>
+            <div onclick="selectSlot(this)" class="slot-chip available">14:00</div>
+            <div onclick="selectSlot(this)" class="slot-chip taken">15:00</div>
+            <div onclick="selectSlot(this)" class="slot-chip available">15:30</div>
+            <div onclick="selectSlot(this)" class="slot-chip available">16:30</div>
+            <div onclick="selectSlot(this)" class="slot-chip taken">17:00</div>
+            <div onclick="selectSlot(this)" class="slot-chip available">17:30</div>
+            <div onclick="selectSlot(this)" class="slot-chip available">18:00</div>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:14px;font-size:12px;font-family:'Sora',sans-serif;color:var(--muted)">
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:rgba(78,205,196,.3);border:1px solid var(--teal)"></div>متاح · Disponible</div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,.06)"></div>محجوز · Réservé</div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:linear-gradient(135deg,var(--gold),var(--gold-l))"></div>اختيارك · Sélectionné</div>
+            <button id="btn-confirm-slot" class="btn btn-gold btn-sm" style="margin-inline-start:auto;display:none" onclick="openModal('modal-client-rdv')">تأكيد الحجز للوقت المختار</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end app-shell -->
+
+  <div class="modal-overlay" id="modal-add-booking">
+  <div class="modal">
+    <div class="modal-title">Nouveau Rendez-vous · حجز موعد جديد</div>
+    <div class="form-group"><label class="form-label">الزبون · Client</label><input class="form-input" placeholder="اسم الزبون..."></div>
+    <div class="grid2" style="gap:12px">
+      <div class="form-group" style="margin-bottom:0"><label class="form-label">التاريخ</label><input class="form-input" type="date" value="2026-03-01"></div>
+      <div class="form-group" style="margin-bottom:0"><label class="form-label">الوقت</label><input class="form-input" type="time" value="14:00"></div>
+    </div>
+    <div class="form-group" style="margin-top:14px"><label class="form-label">الخدمة · Service</label>
+      <select class="form-input"><option>قص شعر · Coupe</option><option>قص وصبغ · Coupe+Couleur</option><option>مانيكير · Manucure</option><option>تنظيف بشرة · Soin visage</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">العاملة · Employée</label>
+      <select class="form-input"><option>فاطمة الزيدي</option><option>ريم بن سالم</option><option>سلمى الخميري</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-booking')">إلغاء</button>
+      <button class="btn btn-gold" onclick="closeModal('modal-add-booking');showToast('Rendez-vous ajouté avec succès')">حفظ الحجز</button>
+    </div>
+  </div>
+</div>
+
+  <div class="modal-overlay" id="modal-add-emp">
+  <div class="modal">
+    <div class="modal-title">Nouvel employé · إضافة عامل جديد</div>
+    <div class="grid2" style="gap:12px">
+      <div class="form-group" style="margin-bottom:0"><label class="form-label">الاسم الأول</label><input class="form-input" placeholder="..."></div>
+      <div class="form-group" style="margin-bottom:0"><label class="form-label">اسم العائلة</label><input class="form-input" placeholder="..."></div>
+    </div>
+    <div class="form-group" style="margin-top:14px"><label class="form-label">التخصص · Spécialité</label>
+      <select class="form-input"><option>كوافيرة · Coiffeuse</option><option>خبيرة تجميل · Esthéticienne</option><option>مانيكير · Manucure</option><option>ميكاج · Maquillage</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">الهاتف · Téléphone</label><input class="form-input" placeholder="+216 XX XXX XXX"></div>
+    <div class="form-group"><label class="form-label">نسبة العمولة % · Commission</label><input class="form-input" type="number" placeholder="10" min="0" max="50"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-emp')">إلغاء</button>
+      <button class="btn btn-gold" onclick="closeModal('modal-add-emp');showToast('Employé ajouté avec succès')">إضافة</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nouveau RDV Client -->
+<div class="modal-overlay" id="modal-client-rdv">
+  <div class="modal">
+    <div class="modal-title">حجز موعد جديد · Nouveau Rendez-vous</div>
+    <div class="form-group">
+      <label class="form-label">الخدمة · Service</label>
+      <select class="form-input">
+        <option>قص شعر · Coupe — 35 د.ت</option>
+        <option>قص وصبغ · Coupe+Couleur — 85 د.ت</option>
+        <option>مانيكير · Manucure — 30 د.ت</option>
+        <option>تنظيف بشرة · Soin visage — 55 د.ت</option>
+        <option>تصفيف · Brushing — 25 د.ت</option>
+        <option>باديكير · Pédicure — 35 د.ت</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">العاملة المفضلة · Employée préférée</label>
+      <select class="form-input">
+        <option>فاطمة الزيدي — كوافيرة</option>
+        <option>ريم بن سالم — خبيرة تجميل</option>
+        <option>سلمى الخميري — مانيكير</option>
+        <option>لا تفضيل · Pas de préférence</option>
+      </select>
+    </div>
+    <div class="grid2" style="gap:12px">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">التاريخ · Date</label>
+        <input class="form-input" type="date" value="2026-03-05">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">الوقت · Heure</label>
+        <input class="form-input" type="time" value="14:00">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:14px">
+      <label class="form-label">ملاحظات · Notes (اختياري)</label>
+      <input class="form-input" placeholder="مثلاً: صبغة فاتحة / couleur claire...">
+    </div>
+    <div style="background:var(--dark4);border-radius:10px;padding:12px 16px;margin-bottom:4px;font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">
+      ستتلقى تأكيداً عبر SMS بعد الحجز · Vous recevrez une confirmation par SMS
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-client-rdv')">إلغاء · Annuler</button>
+      <button class="btn btn-gold" onclick="closeModal('modal-client-rdv');showToast('تم حجز موعدك — SMS في الطريق')">تأكيد الحجز · Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Modifier RDV -->
+<div class="modal-overlay" id="modal-edit-rdv">
+  <div class="modal">
+    <div class="modal-title">تعديل الموعد · Modifier le RDV</div>
+    <div style="background:var(--dark4);border-radius:10px;padding:14px 16px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:700">مانيكير · Manucure</div>
+      <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">12/03/2026 — 11:00 · ريم بن سالم</div>
+    </div>
+    <div class="grid2" style="gap:12px">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">تاريخ جديد · Nouvelle date</label>
+        <input class="form-input" type="date" value="2026-03-14">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">وقت جديد · Nouvel horaire</label>
+        <input class="form-input" type="time" value="15:00">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-edit-rdv')">إلغاء</button>
+      <button class="btn btn-gold" onclick="closeModal('modal-edit-rdv');showToast('تم تعديل الموعد بنجاح')">حفظ التعديل · Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Annuler RDV -->
+<div class="modal-overlay" id="modal-cancel-rdv">
+  <div class="modal">
+    <div class="modal-title" style="color:var(--red)">إلغاء الموعد · Annuler le RDV</div>
+    <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px 16px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:700">قص وصبغ · Coupe &amp; Couleur</div>
+      <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">05/03/2026 — 14:30 · فاطمة الزيدي</div>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.7">
+      هل أنت متأكد من إلغاء هذا الموعد؟ يمكنك إعادة الحجز في أي وقت.<br>
+      <span style="font-family:'Sora',sans-serif;font-size:11px">Êtes-vous sûr de vouloir annuler ce rendez-vous ?</span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">سبب الإلغاء · Motif d'annulation</label>
+      <select class="form-input">
+        <option>ظرف طارئ · Urgence</option>
+        <option>تغيير في الجدول · Changement d'agenda</option>
+        <option>مرض · Maladie</option>
+        <option>سبب آخر · Autre raison</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-cancel-rdv')">تراجع · Retour</button>
+      <button class="btn btn-red" style="border:none;padding:9px 20px;border-radius:10px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700" onclick="closeModal('modal-cancel-rdv');showToast('تم إلغاء الموعد')">تأكيد الإلغاء · Confirmer l'annulation</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"><span class="toast-icon" style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;color:var(--green)">OK</span><span id="toast-msg"></span></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── NAVIGATION ─────────────────────────────────────────────
+const pages = ['login','register','app','chatbot'];
+// ── LOGIN ROUTING ──────────────────────────────────────────
+let currentLoginRole = 'owner';
+function loginRoute() {
+  if (currentLoginRole === 'client') navigate('client');
+  else navigate('app');
+}
+
+// ── CLIENT TABS ────────────────────────────────────────────
+function showClientTab(tab) {
+  ['rdv','services','fidelite','chatbot-c'].forEach(t => {
+    const el = document.getElementById('client-tab-' + t);
+    if (el) el.style.display = 'none';
+  });
+  const target = document.getElementById('client-tab-' + tab);
+  if (target) target.style.display = 'block';
+  document.querySelectorAll('.client-tab').forEach(b => b.classList.remove('active'));
+  event?.target?.classList.add('active');
+}
+
+// ── FILTER RDV ─────────────────────────────────────────────
+function filterRDV(type) {
+  document.querySelectorAll('.rdv-item').forEach(el => {
+    el.style.display = (type === 'all' || el.classList.contains(type)) ? 'flex' : 'none';
+  });
+  ['all','coming','past'].forEach(t => {
+    const btn = document.getElementById('filter-' + t);
+    if (btn) { btn.style.borderColor = ''; btn.style.color = ''; }
+  });
+  const active = document.getElementById('filter-' + type);
+  if (active) { active.style.borderColor = 'var(--gold)'; active.style.color = 'var(--gold)'; }
+}
+
+// ── CLIENT CHATBOT ──────────────────────────────────────────
+let clientCbHistory = [];
+let clientCbLoading = false;
+
+async function clientCbSend() {
+  const input = document.getElementById('client-cb-input');
+  const text = input?.value.trim();
+  if (!text || clientCbLoading) return;
+  clientCbAddMsg(text, 'user');
+  input.value = ''; input.style.height = 'auto';
+  clientCbHistory.push({ role: 'user', content: text });
+  clientCbLoading = true;
+  const typingId = clientCbShowTyping();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 800,
+        system: `Tu es l'assistant IA de Lumiera pour les clients (زبائن) du salon en Tunisie. Réponds en arabe tunisien (دارجة) d'abord, puis courte traduction française en italique. Sois chaleureux, concis, max 100 mots.`,
+        messages: clientCbHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'عذراً، فيه مشكلة.';
+    document.getElementById(typingId)?.remove();
+    clientCbAddMsg(reply, 'bot');
+    clientCbHistory.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    document.getElementById(typingId)?.remove();
+    clientCbAddMsg('مشكلة في الاتصال. _Problème de connexion._', 'bot');
+  }
+  clientCbLoading = false;
+}
+
+function clientCbAddMsg(text, role) {
+  const msgs = document.getElementById('client-cb-messages');
+  const div = document.createElement('div');
+  div.style.cssText = `display:flex;gap:9px;max-width:80%;align-self:${role==='user'?'flex-start':'flex-end'};flex-direction:${role==='user'?'row-reverse':'row'}`;
+  const av = document.createElement('div');
+  av.style.cssText = `width:30px;height:30px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:Sora,sans-serif;${role==='user'?'background:linear-gradient(135deg,var(--rose),var(--gold));color:var(--dark)':'background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark)'}`;
+  av.textContent = role === 'user' ? 'س' : 'AI';
+  const bub = document.createElement('div');
+  bub.style.cssText = `padding:10px 14px;border-radius:13px;font-size:13px;line-height:1.7;${role==='user'?'background:var(--dark4);border:1px solid rgba(255,255,255,.07)':'background:var(--dark2);border:1px solid rgba(201,168,76,.15)'}`;
+  bub.innerHTML = text.replace(/_(.*?)_/g,'<em style="font-size:11px;color:var(--muted);font-family:Sora,sans-serif">$1</em>').replace(/\n/g,'<br>');
+  const wrap = document.createElement('div');
+  wrap.appendChild(bub); div.appendChild(av); div.appendChild(wrap);
+  msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function clientCbShowTyping() {
+  const msgs = document.getElementById('client-cb-messages');
+  const id = 'cbt-' + Date.now();
+  const div = document.createElement('div');
+  div.id = id; div.style.cssText = 'display:flex;gap:9px;align-self:flex-end';
+  div.innerHTML = `<div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--gold),var(--gold-l));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--dark);font-family:Sora,sans-serif">AI</div><div style="background:var(--dark2);border:1px solid rgba(201,168,76,.15);border-radius:13px;padding:12px 16px;display:flex;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:var(--gold);animation:bounce .8s infinite"></div><div style="width:6px;height:6px;border-radius:50%;background:var(--gold);animation:bounce .8s .15s infinite"></div><div style="width:6px;height:6px;border-radius:50%;background:var(--gold);animation:bounce .8s .3s infinite"></div></div>`;
+  msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight; return id;
+}
+
+function clientCbQuick(text) {
+  const input = document.getElementById('client-cb-input');
+  if (input) { input.value = text; clientCbSend(); }
+}
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  if (page === 'app') showSection('dashboard');
+}
+
+// ── SIDEBAR SECTIONS ───────────────────────────────────────
+function showSection(name) {
+  document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
+  const sec = document.getElementById('section-' + name);
+  if (sec) sec.style.display = name === 'chatbot' ? 'flex' : 'block';
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  event?.target?.closest('.nav-item')?.classList.add('active');
+  if (name !== 'chatbot') document.getElementById('main-content').scrollTop = 0;
+}
+
+// ── HANDLE #register HASH ──────────────────────────────────
+window.addEventListener('load', () => {
+  if (location.hash === '#register') navigate('register');
+});
+
+// ── ROLE SWITCHER ──────────────────────────────────────────
+function setRole(btn, role) {
+  btn.parentElement.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentLoginRole = role;
+}
+
+// ── POS CART ──────────────────────────────────────────────
+let cart = [];
+function addToCart(el, nameAr, nameFr, price, dur) {
+  el.classList.toggle('selected');
+  const idx = cart.findIndex(i => i.nameAr === nameAr);
+  if (idx > -1) { cart.splice(idx, 1); }
+  else { cart.push({ nameAr, nameFr, price }); }
+  renderCart();
+}
+function renderCart() {
+  const container = document.getElementById('cart-items');
+  const empty = document.getElementById('cart-empty');
+  if (cart.length === 0) {
+    container.innerHTML = `<div id="cart-empty" style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;font-family:'Sora',sans-serif">اختر خدمة من اليسار<br>Sélectionnez un service</div>`;
+    document.getElementById('cart-total').innerHTML = '0.00 <span style="font-size:14px">د.ت</span>';
+    return;
+  }
+  let total = 0;
+  let html = '';
+  cart.forEach((item, i) => {
+    total += item.price;
+    html += `<div class="cart-item">
+      <div class="cart-item-name">${item.nameAr}<br><span style="font-size:10px;color:var(--muted);font-family:'Sora',sans-serif">${item.nameFr}</span></div>
+      <div class="cart-item-price">${item.price.toFixed(2)} د.ت</div>
+      <div class="cart-remove" onclick="removeItem(${i})">×</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+  document.getElementById('cart-total').innerHTML = `${total.toFixed(2)} <span style="font-size:14px">د.ت</span>`;
+}
+function removeItem(i) {
+  const item = cart[i];
+  document.querySelectorAll('.service-item').forEach(el => {
+    if (el.querySelector('.service-name')?.textContent === item.nameAr) el.classList.remove('selected');
+  });
+  cart.splice(i, 1);
+  renderCart();
+}
+function clearCart() { cart = []; document.querySelectorAll('.service-item').forEach(e=>e.classList.remove('selected')); renderCart(); }
+function checkout() {
+  if (cart.length === 0) { showToast('Ajoutez un service'); return; }
+  const total = cart.reduce((s,i)=>s+i.price,0);
+  showToast(`Paiement effectué — ${total.toFixed(2)} د.ت`);
+  clearCart();
+}
+function selectPay(btn) {
+  btn.parentElement.querySelectorAll('.pay-method').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function filterServices(val) {}
+
+// ── SLOT SELECTION ─────────────────────────────────────────
+function selectSlot(el) {
+  if (el.classList.contains('taken')) return;
+  document.querySelectorAll('.slot-chip.selected').forEach(s => {
+    s.classList.remove('selected');
+    s.classList.add('available');
+  });
+  el.classList.remove('available');
+  el.classList.add('selected');
+  document.getElementById('btn-confirm-slot').style.display = 'inline-flex';
+  document.getElementById('btn-confirm-slot').textContent = 'تأكيد الحجز — ' + el.textContent;
+}
+
+// ── MODALS ─────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ── TOAST ──────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── CHATBOT ────────────────────────────────────────────────
+let cbMode = 'owner';
+let cbHistory = [];
+let cbLoading = false;
+
+const CB_SYSTEM = {
+  owner: `Tu es l'assistant IA de Lumiera, plateforme SaaS de gestion de salons en Tunisie. Tu aides les propriétaires de salons. Réponds en arabe tunisien (دارجة) d'abord, puis une courte traduction en français en italique. Sois précis et donne des étapes concrètes. Max 150 mots.`,
+  client: `Tu es l'assistant IA de Lumiera, plateforme SaaS de gestion de salons en Tunisie. Tu aides les clients (زبائن) pour les rendez-vous, services et fidélité. Réponds en arabe tunisien (دارجة) d'abord, puis une courte traduction en français en italique. Sois chaleureux et concis. Max 120 mots.`
+};
+
+function setChatMode(mode) {
+  cbMode = mode;
+  document.getElementById('cb-btn-owner').className = 'btn btn-sm' + (mode==='owner' ? ' btn-gold' : ' btn-outline');
+  document.getElementById('cb-btn-client').className = 'btn btn-sm' + (mode==='client' ? ' btn-gold' : ' btn-outline');
+  document.getElementById('cb-quick-owner').style.display = mode==='owner' ? 'flex' : 'none';
+  document.getElementById('cb-quick-client').style.display = mode==='client' ? 'flex' : 'none';
+  document.getElementById('cb-quick-client').style.flexDirection = 'column';
+  document.getElementById('cb-quick-client').style.gap = '6px';
+  clearChatbot(true);
+}
+
+function clearChatbot(keepWelcome=false) {
+  cbHistory = [];
+  const msgs = document.getElementById('cb-messages');
+  msgs.innerHTML = `<div id="cb-welcome" style="background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.03));border:1px solid rgba(201,168,76,.2);border-radius:18px;padding:22px 26px;max-width:500px;margin:0 auto;text-align:center">
+    <div style="font-size:15px;font-weight:900;margin-bottom:6px">لوميرا <span style="color:var(--gold)">AI</span></div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.8;font-family:'Sora',sans-serif">${cbMode==='owner' ? 'Assistant pour la gestion de votre salon.' : 'Assistant pour vos rendez-vous et services.'}<br>Je parle arabe tunisien et français.</div>
+  </div>`;
+}
+
+function cbAddMsg(text, role) {
+  const msgs = document.getElementById('cb-messages');
+  const welcome = document.getElementById('cb-welcome');
+  if (welcome) welcome.remove();
+  const div = document.createElement('div');
+  div.style.cssText = `display:flex;gap:10px;max-width:76%;align-self:${role==='user'?'flex-start':'flex-end'};flex-direction:${role==='user'?'row-reverse':'row'}`;
+  const avatar = document.createElement('div');
+  avatar.style.cssText = `width:32px;height:32px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:'Sora',sans-serif;${role==='user'?'background:var(--dark4);border:1px solid rgba(255,255,255,.08);color:var(--muted)':'background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark)'}`;
+  avatar.textContent = role==='user' ? (cbMode==='owner'?'S':'Z') : 'AI';
+  const bubble = document.createElement('div');
+  bubble.style.cssText = `padding:11px 15px;border-radius:14px;font-size:13px;line-height:1.75;${role==='user'?'background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-top-right-radius:4px':'background:var(--dark4);border:1px solid rgba(201,168,76,.15);border-top-left-radius:4px'}`;
+  bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<b style="color:var(--gold)">$1</b>').replace(/_(.*?)_/g,'<em style="font-family:Sora,sans-serif;font-size:11px;color:var(--muted)">$1</em>').replace(/\n/g,'<br>');
+  const wrap = document.createElement('div');
+  wrap.appendChild(bubble);
+  div.appendChild(avatar); div.appendChild(wrap);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function cbShowTyping() {
+  const msgs = document.getElementById('cb-messages');
+  const id = 'cb-typing-' + Date.now();
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'display:flex;gap:10px;align-self:flex-end';
+  div.innerHTML = `<div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-l));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:Sora,sans-serif;color:var(--dark);flex-shrink:0">AI</div><div style="background:var(--dark4);border:1px solid rgba(201,168,76,.15);border-radius:14px;border-top-left-radius:4px;padding:14px 18px;display:flex;gap:5px;align-items:center"><div style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:bounce .8s ease infinite"></div><div style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:bounce .8s ease .15s infinite"></div><div style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:bounce .8s ease .3s infinite"></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return id;
+}
+
+async function cbSend() {
+  const input = document.getElementById('cb-input');
+  const text = input.value.trim();
+  if (!text || cbLoading) return;
+  cbAddMsg(text, 'user');
+  input.value = ''; input.style.height = 'auto';
+  cbHistory.push({role:'user', content:text});
+  const typingId = cbShowTyping();
+  cbLoading = true;
+  document.getElementById('cb-send').disabled = true;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:CB_SYSTEM[cbMode], messages:cbHistory })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'عذراً، فيه مشكلة. حاول مرة أخرى.';
+    document.getElementById(typingId)?.remove();
+    cbAddMsg(reply, 'bot');
+    cbHistory.push({role:'assistant', content:reply});
+  } catch(e) {
+    document.getElementById(typingId)?.remove();
+    cbAddMsg('مشكلة في الاتصال. _Problème de connexion._', 'bot');
+  }
+  cbLoading = false;
+  document.getElementById('cb-send').disabled = false;
+}
+
+function cbSendQuick(text) {
+  document.getElementById('cb-input').value = text;
+  cbSend();
+}
+
+// ════════════════════════════════════════
+//  LUMIERA — MongoDB API Integration
+// ════════════════════════════════════════
+
+async function handleLogin() {
+  const emailEl    = document.querySelector('#page-login .form-input[type=email]');
+  const passwordEl = document.querySelector('#page-login .form-input[type=password]');
+  const btn        = document.querySelector('#page-login .btn-full');
+  if (!emailEl || !passwordEl) return;
+  btn.textContent = 'Connexion...'; btn.disabled = true;
+  try {
+    await API.AuthAPI.login(emailEl.value.trim(), passwordEl.value);
+    fillUserInfo();
+    loginRoute();
+    setTimeout(loadDashboardData, 400);
+  } catch(e) {
+    showApiToast(e.message || 'Identifiants incorrects', 'error');
+  } finally {
+    btn.textContent = 'تسجيل الدخول · Se connecter'; btn.disabled = false;
+  }
+}
+
+async function handleRegister() {
+  const form = document.querySelector('#page-register');
+  if (!form) return;
+  const inputs = form.querySelectorAll('.form-input');
+  const btn    = form.querySelector('.btn-full');
+  const userData = {
+    prenom: inputs[0]?.value.trim(), nom: inputs[1]?.value.trim(),
+    nomSalon: inputs[2]?.value.trim(), telephone: inputs[3]?.value.trim(),
+    email: inputs[4]?.value.trim(), password: inputs[5]?.value,
+    role: currentLoginRole || 'client', ville: 'Tunis'
+  };
+  if (!userData.email || !userData.password) { showApiToast('Veuillez remplir tous les champs', 'error'); return; }
+  btn.textContent = 'Création...'; btn.disabled = true;
+  try {
+    await API.AuthAPI.register(userData);
+    fillUserInfo(); loginRoute();
+    setTimeout(loadDashboardData, 400);
+  } catch(e) {
+    showApiToast(e.message, 'error');
+  } finally {
+    btn.textContent = 'إنشاء الحساب · Créer le compte'; btn.disabled = false;
+  }
+}
+
+async function loadDashboardData() {
+  try {
+    // KPIs
+    const kpis = await API.RapportsAPI.dashboard();
+    const vals = document.querySelectorAll('.kpi-value');
+    if (vals[0]) vals[0].textContent = kpis.rdvsAujourdhui;
+    if (vals[1]) vals[1].innerHTML   = kpis.revenusJour.toFixed(0) + ' <span style="font-size:16px">د.ت</span>';
+    if (vals[2]) vals[2].textContent = kpis.nbClients;
+    if (vals[6]) { vals[6].textContent = kpis.alertesStock; if (kpis.alertesStock > 0) vals[6].style.color = 'var(--red)'; }
+
+    // Clients table
+    const clients = await API.ClientsAPI.getAll();
+    const tbody   = document.getElementById('clients-tbody');
+    if (tbody && clients.length) {
+      tbody.innerHTML = clients.slice(0, 5).map(c => `
+        <tr>
+          <td><div style="font-weight:600">${c.prenom} ${c.nom}</div>
+              <div style="font-size:11px;color:var(--muted)">${c.email}</div></td>
+          <td style="font-family:'Sora',sans-serif">${c.telephone || '—'}</td>
+          <td>${new Date(c.createdAt).toLocaleDateString('fr-TN')}</td>
+          <td>—</td>
+          <td><span style="color:var(--gold);font-weight:700">${c.pointsFidelite || 0} pts</span></td>
+          <td><span class="badge badge-green">نشيط</span></td>
+          <td><button class="btn btn-sm btn-outline">عرض</button></td>
+        </tr>`).join('');
+    }
+
+    // RDV today
+    const today = new Date().toISOString().split('T')[0];
+    const rdvs  = await API.RdvAPI.getAll({ date: today });
+    const slots = document.querySelector('.time-slots');
+    if (slots && rdvs.length) {
+      slots.innerHTML = rdvs.map(r => `
+        <div class="time-slot booked">
+          <div class="slot-time">${r.heureDebut}</div>
+          <div class="slot-info">
+            <div class="slot-name">${r.clientNom || '—'}</div>
+            <div class="slot-service">${r.serviceNom} · ${r.employeNom || '—'} · ${r.duree || 60} min</div>
+          </div>
+          <span class="badge ${r.statut === 'confirme' ? 'badge-green' : 'badge-gold'}">${r.statut === 'confirme' ? 'مؤكد' : 'انتظار'}</span>
+          <button class="btn btn-sm btn-outline"
+            onclick="API.RdvAPI.updateStatut('${r._id}','confirme').then(loadDashboardData)">تأكيد</button>
+        </div>`).join('');
+    }
+
+    // Employees
+    const emps = await API.EmployesAPI.getAll();
+    const empGrid = document.querySelector('.grid3');
+    if (empGrid && emps.length) {
+      const colors = ['linear-gradient(135deg,#E8748A,#C9A84C)', 'linear-gradient(135deg,#4ECDC4,#3B82F6)', 'linear-gradient(135deg,#22C55E,#4ECDC4)'];
+      empGrid.innerHTML = emps.map((e, i) => `
+        <div class="emp-card">
+          <div class="emp-avatar" style="background:${colors[i % 3]}">${e.prenom[0]}</div>
+          <div class="emp-name">${e.prenom} ${e.nom}</div>
+          <div class="emp-role">${e.specialite}</div>
+          <div style="margin-bottom:10px">
+            <span class="badge ${e.statut === 'actif' ? 'badge-green' : 'badge-gold'}">${e.statut}</span>
+          </div>
+          <div class="emp-stats">
+            <div><div class="emp-stat-val">${e.tauxCommission}%</div><div class="emp-stat-lbl">Commission</div></div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" style="flex:1">الجدول</button>
+            <button class="btn btn-gold btn-sm" style="flex:1">تفاصيل</button>
+          </div>
+        </div>`).join('');
+    }
+
+    // Stock
+    const stockItems = await API.StockAPI.getAll();
+    const stockCont  = document.querySelector('#section-stock .table-card > div:last-child');
+    if (stockCont && stockItems.length) {
+      stockCont.innerHTML = stockItems.map(s => {
+        const pct   = Math.round((s.quantite / Math.max(s.quantite + s.seuilAlerte * 2, 1)) * 100);
+        const color = s.quantite <= s.seuilAlerte ? 'var(--red)' : s.quantite <= s.seuilAlerte * 2 ? 'var(--gold)' : 'var(--green)';
+        const badge = s.quantite <= s.seuilAlerte ? 'badge-red' : 'badge-green';
+        const label = s.quantite <= s.seuilAlerte ? 'منخفض' : 'متوفر';
+        return `
+          <div class="stock-row">
+            <div class="stock-icon" style="background:rgba(201,168,76,.1)">
+              <span style="font-size:11px;font-weight:800;font-family:Sora,sans-serif;color:var(--gold)">${s.nom.slice(0,2).toUpperCase()}</span>
+            </div>
+            <div><div class="stock-name">${s.nom}</div><div class="stock-sub">${s.categorie || ''}</div></div>
+            <div style="flex:1;padding:0 20px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                <span style="font-size:12px;color:var(--muted);font-family:'Sora',sans-serif">${s.quantite} / ${s.quantite + s.seuilAlerte * 2}</span>
+                <span style="font-size:12px;color:${color};font-family:'Sora',sans-serif">${s.quantite <= s.seuilAlerte ? 'منخفض!' : 'OK'}</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+            </div>
+            <span class="badge ${badge}">${label}</span>
+          </div>`;
+      }).join('');
+    }
+
+    // Reports revenue
+    const revData = await API.RapportsAPI.revenus('mois');
+    if (vals[4]) vals[4].innerHTML = kpis.revenusMois.toFixed(0) + ' <span style="font-size:16px">د.ت</span>';
+
+  } catch(e) {
+    console.warn('loadDashboardData:', e.message);
+  }
+}
+
+// Load client RDV from MongoDB
+async function loadClientRdvData() {
+  try {
+    const rdvs = await API.RdvAPI.getClient();
+    const list  = document.getElementById('rdv-list');
+    if (!list) return;
+    const coming = rdvs.filter(r => r.statut !== 'termine' && r.statut !== 'annule');
+    const past   = rdvs.filter(r => r.statut === 'termine' || r.statut === 'annule');
+    const badgeClass = s => s === 'confirme' ? 'badge-green' : s === 'en_attente' ? 'badge-gold' : 'badge-muted';
+    const badgeLabel = s => s === 'confirme' ? 'مؤكد · Confirmé' : s === 'en_attente' ? 'انتظار · En attente' : 'ملغي · Annulé';
+    const color = i => ['rgba(78,205,196,.1)', 'rgba(201,168,76,.1)', 'rgba(232,116,138,.1)'][i % 3];
+    const bcolor= i => ['var(--teal)', 'var(--gold)', 'var(--rose)'][i % 3];
+    list.innerHTML = [...coming, ...past].map((r, i) => {
+      const d = new Date(r.date);
+      const isComing = coming.includes(r);
+      return `<div class="rdv-item ${isComing ? 'coming' : 'past'}"
+        style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s;${!isComing ? 'opacity:.65' : ''}"
+        onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background=''">
+        <div style="width:50px;height:50px;border-radius:14px;background:${color(i)};border:1px solid ${bcolor(i).replace(')',', .3)')};display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+          <div style="font-size:18px;font-weight:900;color:${bcolor(i)};line-height:1;font-family:'Sora',sans-serif">${d.getDate().toString().padStart(2,'0')}</div>
+          <div style="font-size:9px;color:var(--muted);font-family:'Sora',sans-serif">${d.toLocaleString('fr',{month:'short'}).toUpperCase()}</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700">${r.serviceNom}</div>
+          <div style="font-size:11px;color:var(--muted);font-family:'Sora',sans-serif;margin-top:3px">${r.heureDebut} — ${r.employeNom || '—'} — ${r.duree || 60} min — ${r.prix || 0} د.ت</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px">
+          <span class="badge ${badgeClass(r.statut)}">${badgeLabel(r.statut)}</span>
+          ${isComing ? `<div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-outline" onclick="openModal('modal-edit-rdv')">تعديل</button>
+            <button class="btn btn-sm btn-red" onclick="API.RdvAPI.cancel('${r._id}').then(loadClientRdvData)">إلغاء</button>
+          </div>` : ''}
+        </div>
+      </div>`;
+    }).join('') || '<div style="padding:30px;text-align:center;color:var(--muted)">لا يوجد مواعيد بعد</div>';
+    
+    // Update KPI
+    const kpiVals = document.querySelectorAll('#client-tab-rdv .kpi-value');
+    if (kpiVals[0]) kpiVals[0].textContent = rdvs.length;
+    if (kpiVals[1]) kpiVals[1].textContent = coming.length;
+    
+    // Points
+    const user = API.Auth.getUser();
+    if (kpiVals[2] && user) kpiVals[2].textContent = user.pointsFidelite || 0;
+  } catch(e) { console.warn('loadClientRdvData:', e.message); }
+}
+
+// Auto-init on load
+window.addEventListener('load', () => {
+  if (API.Auth.isLoggedIn()) {
+    fillUserInfo();
+    const user = API.Auth.getUser();
+    if (user?.role === 'client') {
+      navigate('client');
+      setTimeout(loadClientRdvData, 300);
+    } else {
+      navigate('app');
+      setTimeout(loadDashboardData, 300);
+    }
+  }
+});
+
+// Override showSection to load data on tab switch
+const _origShowSection = showSection;
+function showSection(name) {
+  _origShowSection.call(this, name);
+  if (name === 'dashboard') loadDashboardData();
+  if (name === 'client-rdv') loadClientRdvData();
+}
+
+</script>
+</body>
+</html>
